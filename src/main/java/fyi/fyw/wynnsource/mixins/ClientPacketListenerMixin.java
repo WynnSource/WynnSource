@@ -1,5 +1,6 @@
 package fyi.fyw.wynnsource.mixins;
 
+import fyi.fyw.wynnsource.WynnSourceEntry;
 import fyi.fyw.wynnsource.module.RewardPoolCollector;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
@@ -27,7 +28,7 @@ public abstract class ClientPacketListenerMixin {
                 } catch (Exception e) {
                     // If any error occurs, we don't want to crash the game,
                     // but we want to log it
-                    System.out.println("[WynnSource] Error while handling container screen: " + e.getMessage());
+                    WynnSourceEntry.INSTANCE.getLOGGER().error("[WynnSource] Error while handling container screen: {}", e.getMessage());
                     e.printStackTrace();
                 }
 

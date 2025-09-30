@@ -4,10 +4,12 @@
   "text.config.wynnsource.option.enabled.tooltip": "By enabling this mod, you explicitly consent to the \ncollection and transmission of client-side game data during gameplay.\nThis data may include, but is not limited to, all in-game activity information \nand a hashed version of your player identifier (uuid).\nYou acknowledge and agree that such data is collected solely for the purpose of enabling,\nmaintaining, and improving mod functionality,\nand may be used for statistical or analytical purposes related to the mod’s operation.",
   "text.config.wynnsource.option.collectRewardPool": "Collect Reward Pool",
   "text.config.wynnsource.option.collectRewardPool.tooltip": "Collects reward pool from Lootruns and Raids.",
-  "text.config.wynnsource.option.reportToServer": "Report to Server [Not Implemented]",
+  "text.config.wynnsource.option.reportToServer": "Report to Server",
   "text.config.wynnsource.option.reportToServer.tooltip": "Reports the collected data to the server.",
   "text.config.wynnsource.option.reportApiEndpoint": "Server API Endpoint",
   "text.config.wynnsource.option.reportApiEndpoint.tooltip": "The server API endpoint to report the collected data to.",
   "text.config.wynnsource.option.reportApiKey": "Server API Key",
-  "text.config.wynnsource.option.reportApiKey.tooltip": "The server API key to authenticate."
+  "text.config.wynnsource.option.reportApiKey.tooltip": "The server API key to authenticate.",
+  "text.config.wynnsource.option.reportInterval": "Report Interval",
+  "text.config.wynnsource.option.reportInterval.tooltip": "The minimum interval between reports to the server.\nThis is to prevent taking too much network resource."
 }

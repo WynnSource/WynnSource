@@ -4,6 +4,7 @@ build/
 !**/src/main/**/out/
 !**/src/test/**/out/
 .idea/runConfigurations/
+.idea/copilot.*
 
 ### Eclipse ###
 .apt_generated

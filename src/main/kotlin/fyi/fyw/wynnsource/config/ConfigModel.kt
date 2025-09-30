@@ -21,4 +21,7 @@ class ConfigModel {
 
     @JvmField
     public var reportApiKey: String = ""
+
+    @JvmField
+    public var reportInterval: Long = 15000
 }
