@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "wynnsource",
+  "version": "${version}",
+  "name": "WynnSource",
+  "description": "An open-source crowdsourcing framework for Wynncraft.",
+  "authors": [
+    "FYWinds"
+  ],
+  "contact": {
+    "homepage": "https://github.com/FYWinds/WynnSource",
+    "sources": "https://github.com/FYWinds/WynnSource"
+  },
+  "license": "LGPL-3.0-or-later",
+  "icon": "assets/wynnsource/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      {
+        "value": "fyw.fyi.WynnSource",
+        "adapter": "kotlin"
+      }
+    ],
+    "client": [
+      {
+        "value": "fyw.fyi.WynnSourceClient",
+        "adapter": "kotlin"
+      }
+    ],
+    "fabric-datagen": [
+      {
+        "value": "fyw.fyi.WynnSourceDataGenerator",
+        "adapter": "kotlin"
+      }
+    ]
+  },
+  "mixins": [
+    "wynnsource.mixins.json",
+    {
+      "config": "wynnsource.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "fabric-language-kotlin": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+      },
+      "update_checker": true
+    }
+  }
+}

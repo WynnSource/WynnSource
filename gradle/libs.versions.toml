@@ -1,0 +1,56 @@
+[versions]
+# Minecraft & Fabric
+minecraft = "1.21.11"
+yarn-mappings = "1.21.11+build.4"
+fabric-loader = "0.18.4"
+fabric-loom = "1.15-SNAPSHOT"
+fabric-api = "0.141.3+1.21.11"
+fabric-kotlin = "1.13.8+kotlin.2.3.0"
+
+# Kotlin
+kotlin = "2.3.0"
+
+# Code Quality
+detekt = "1.23.8"
+
+# Version Management
+axion-release = "1.18.16"
+
+# Other Libraries
+mod-menu = "17.0.0-beta.2"
+wynntils = "v4.0.0-beta.4-fabric"
+owo-lib = "0.13.0+1.21.11"
+
+
+# QoL mods for development
+dev-login = "1.2.2"
+resource-pack-cached = "1.2.4-fabric"
+
+[libraries]
+# Minecraft
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+yarn-mappings = { module = "net.fabricmc:yarn", version.ref = "yarn-mappings" }
+
+# Fabric
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
+
+# Other Libraries
+modMenu = { module = "com.terraformersmc:modmenu", version.ref = "mod-menu" }
+wynntils = { module = "maven.modrinth:wynntils", version.ref = "wynntils" }
+owoLib = { module = "io.wispforest:owo-lib", version.ref = "owo-lib" }
+owoLibSentinal = { module = "io.wispforest:owo-sentinel", version.ref = "owo-lib" }
+
+# QoL mods for development
+devAuth = { module = "me.djtheredstoner:DevAuth-fabric", version.ref = "dev-login" }
+resourcePackCached = { module = "maven.modrinth:resourcepackcached", version.ref = "resource-pack-cached" }
+
+[bundles]
+fabric = ["fabric-loader", "fabric-api", "fabric-kotlin"]
+
+[plugins]
+fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "fabric-loom" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }
