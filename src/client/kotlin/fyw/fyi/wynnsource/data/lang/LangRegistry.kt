@@ -1,5 +1,6 @@
 package fyw.fyi.wynnsource.data.lang
 
+import fyw.fyi.wynnsource.data.lang.LangUtils.trimAllLineStart
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator
 
@@ -12,7 +13,7 @@ object LangRegistry {
     )
 
     fun translatable(key: String, cn: String, en: String): Translatable {
-        val translatable = Translatable(key, cn, en)
+        val translatable = Translatable(key, cn.trimAllLineStart(), en.trimAllLineStart())
         LANG[key] = translatable
         return translatable
     }

@@ -4,6 +4,7 @@ import fyw.fyi.wynnsource.config.core.ConfigPage
 import fyw.fyi.wynnsource.config.delegate.range
 import fyw.fyi.wynnsource.config.delegate.url
 import fyw.fyi.wynnsource.data.lang.LangRegistry
+import fyw.fyi.wynnsource.data.lang.LangUtils.trimAllLineStart
 
 /**
  * Global configuration page for WynnSource.
@@ -23,10 +24,20 @@ object GlobalConfigPage : ConfigPage(
         name = translatable("config.global.enabled", "启用模组", "Enable Mod"),
         description = translatable(
             "config.global.enabled.desc",
-            """启用此模组即表示您明确同意在游戏过程中收集和传输客户端游戏数据。
-               这些数据可能包括但不限于所有游戏内活动信息和玩家标识符（uuid）的哈希版本。""",
-            """By enabling this mod, you explicitly consent to the collection and 
-               transmission of client-side game data during gameplay."""
+            """启用此模组即表示您明确同意在游戏过程中
+                收集并传输客户端游戏数据。
+                这些数据可能包括但不限于所有游戏内活动信息，
+                以及您的玩家标识符（UUID）的哈希版本。
+                您理解并同意，该数据仅用于实现、维护和优化模组功能，
+                并可能用于与模组运行相关的统计或分析目的。""".trimAllLineStart(),
+            """By enabling this mod, you explicitly consent to the
+                collection and transmission of client-side game data during gameplay.
+                This data may include, but is not limited to, all in-game activity information
+                and a hashed version of your player identifier (uuid).
+                You acknowledge and agree that such data is collected solely for the purpose of enabling,
+                maintaining, and improving mod functionality,
+                and may be used for statistical or analytical purposes related to the mod’s operation.
+            """.trimAllLineStart()
         )
     )
 

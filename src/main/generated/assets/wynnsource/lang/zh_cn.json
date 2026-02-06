@@ -9,7 +9,7 @@
   "config.button.save_exit": "保存并退出",
   "config.global.advanced": "高级设置",
   "config.global.enabled": "启用模组",
-  "config.global.enabled.desc": "启用此模组即表示您明确同意在游戏过程中收集和传输客户端游戏数据。\n               这些数据可能包括但不限于所有游戏内活动信息和玩家标识符（uuid）的哈希版本。",
+  "config.global.enabled.desc": "启用此模组即表示您明确同意在游戏过程中\n收集并传输客户端游戏数据。\n这些数据可能包括但不限于所有游戏内活动信息，\n以及您的玩家标识符（UUID）的哈希版本。\n您理解并同意，该数据仅用于实现、维护和优化模组功能，\n并可能用于与模组运行相关的统计或分析目的。",
   "config.global.reporting": "数据上报",
   "config.reporting.apikey": "API 密钥",
   "config.reporting.apikey.desc": "用于身份验证的 API 密钥",
