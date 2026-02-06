@@ -1,6 +1,6 @@
 package fyw.fyi
 
-import fyw.fyi.data.lang.LangHandler
+import fyw.fyi.data.lang.LangRegistry
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator
 
@@ -11,7 +11,7 @@ object WynnSourceDataGenerator : DataGeneratorEntrypoint {
         // module.addLang()...
 
         // Language data generation
-        LangHandler.translatable("wynnsource.example", "示例", "Example")
-        LangHandler.runDataGen(pack)
+        LangRegistry.translatable("wynnsource.example", "示例", "Example")
+        LangRegistry.runDataGen(pack)
     }
 }
