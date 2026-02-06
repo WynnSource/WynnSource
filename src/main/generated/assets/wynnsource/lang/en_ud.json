@@ -1,0 +1,22 @@
+{
+  "config.advanced.debug": "ᗡǝqnᵷ Wopǝ",
+  "config.advanced.debug.desc": "Ǝuɐqꞁǝ ɐppᴉʇᴉouɐꞁ pǝqnᵷ ᴉuɟoɹɯɐʇᴉou onʇdnʇ",
+  "config.advanced.loglevel": "Ꞁoᵷ Ꞁǝʌǝꞁ",
+  "config.advanced.loglevel.desc": "Ꞁoᵷ onʇdnʇ ꞁǝʌǝꞁ ɟoɹ ʇɥǝ ɯop",
+  "config.global.advanced": "Ɐpʌɐuɔǝp Sǝʇʇᴉuᵷs",
+  "config.global.enabled": "Ǝuɐqꞁǝ Wop",
+  "config.global.enabled.desc": "ᗺʎ ǝuɐqꞁᴉuᵷ ʇɥᴉs ɯop' ʎon ǝxdꞁᴉɔᴉʇꞁʎ ɔousǝuʇ ʇo ʇɥǝ ɔoꞁꞁǝɔʇᴉou ɐup \n               ʇɹɐusɯᴉssᴉou oɟ ɔꞁᴉǝuʇ-sᴉpǝ ᵷɐɯǝ pɐʇɐ pnɹᴉuᵷ ᵷɐɯǝdꞁɐʎ˙",
+  "config.global.reporting": "ᴚǝdoɹʇᴉuᵷ",
+  "config.reporting.apikey": "ⱯԀI ʞǝʎ",
+  "config.reporting.apikey.desc": "ⱯԀI ʞǝʎ ɟoɹ ɐnʇɥǝuʇᴉɔɐʇᴉou",
+  "config.reporting.enabled": "Ǝuɐqꞁǝ ᴚǝdoɹʇᴉuᵷ",
+  "config.reporting.enabled.desc": "∩dꞁoɐp ɔoꞁꞁǝɔʇǝp pɐʇɐ ʇo ʇɥǝ sǝɹʌǝɹ",
+  "config.reporting.endpoint": "ⱯԀI Ǝupdoᴉuʇ",
+  "config.reporting.endpoint.desc": "Sǝɹʌǝɹ ⱯԀI ǝupdoᴉuʇ ɟoɹ ndꞁoɐpᴉuᵷ pɐʇɐ",
+  "config.reporting.endpoint.error": "Ԁꞁǝɐsǝ ǝuʇǝɹ ɐ ʌɐꞁᴉp ∩ᴚꞀ )sʇɐɹʇᴉuᵷ ʍᴉʇɥ ɥʇʇd:// oɹ ɥʇʇds://(",
+  "config.reporting.interval": "ᴚǝdoɹʇ Iuʇǝɹʌɐꞁ )sǝɔ(",
+  "config.reporting.interval.desc": "Wᴉuᴉɯnɯ ʇᴉɯǝ ᴉuʇǝɹʌɐꞁ qǝʇʍǝǝu ɹǝdoɹʇs ʇo ʇɥǝ sǝɹʌǝɹ",
+  "config.reporting.interval.error": "Iuʇǝɹʌɐꞁ ɯnsʇ qǝ qǝʇʍǝǝu 5-Ɛ0 sǝɔoups",
+  "config.wynnsource.global": "⅁ꞁoqɐꞁ Ɔouɟᴉᵷ",
+  "wynnsource.example": "Ǝxɐɯdꞁǝ"
+}

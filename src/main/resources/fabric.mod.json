@@ -32,6 +32,12 @@
         "value": "fyw.fyi.WynnSourceDataGenerator",
         "adapter": "kotlin"
       }
+    ],
+    "modmenu": [
+      {
+        "value": "fyw.fyi.config.ModMenuIntegration",
+        "adapter": "kotlin"
+      }
     ]
   },
   "mixins": [
