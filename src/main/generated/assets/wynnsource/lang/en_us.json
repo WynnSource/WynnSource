@@ -3,6 +3,10 @@
   "config.advanced.debug.desc": "Enable additional debug information output",
   "config.advanced.loglevel": "Log Level",
   "config.advanced.loglevel.desc": "Log output level for the mod",
+  "config.button.apply": "Apply",
+  "config.button.cancel": "Cancel",
+  "config.button.reset": "Reset to Default",
+  "config.button.save_exit": "Save & Exit",
   "config.global.advanced": "Advanced Settings",
   "config.global.enabled": "Enable Mod",
   "config.global.enabled.desc": "By enabling this mod, you explicitly consent to the collection and \n               transmission of client-side game data during gameplay.",
@@ -13,10 +17,11 @@
   "config.reporting.enabled.desc": "Upload collected data to the server",
   "config.reporting.endpoint": "API Endpoint",
   "config.reporting.endpoint.desc": "Server API endpoint for uploading data",
-  "config.reporting.endpoint.error": "Please enter a valid URL (starting with http:// or https://)",
+  "config.reporting.endpoint.error": "Please enter a valid URL (starting with https://)",
   "config.reporting.interval": "Report Interval (sec)",
   "config.reporting.interval.desc": "Minimum time interval between reports to the server",
   "config.reporting.interval.error": "Interval must be between 5-30 seconds",
   "config.wynnsource.global": "Global Config",
+  "config.wynnsource.title": "WynnSource Configuration",
   "wynnsource.example": "Example"
 }

@@ -3,6 +3,10 @@
   "config.advanced.debug.desc": "启用额外的调试信息输出",
   "config.advanced.loglevel": "日志级别",
   "config.advanced.loglevel.desc": "模组的日志输出级别",
+  "config.button.apply": "应用",
+  "config.button.cancel": "取消",
+  "config.button.reset": "重置默认值",
+  "config.button.save_exit": "保存并退出",
   "config.global.advanced": "高级设置",
   "config.global.enabled": "启用模组",
   "config.global.enabled.desc": "启用此模组即表示您明确同意在游戏过程中收集和传输客户端游戏数据。\n               这些数据可能包括但不限于所有游戏内活动信息和玩家标识符（uuid）的哈希版本。",
@@ -13,10 +17,11 @@
   "config.reporting.enabled.desc": "将收集到的数据上传至服务器",
   "config.reporting.endpoint": "API 地址",
   "config.reporting.endpoint.desc": "用于上传数据的服务器 API 接口地址",
-  "config.reporting.endpoint.error": "请输入有效的 URL (以 http:// 或 https:// 开头)",
+  "config.reporting.endpoint.error": "请输入有效的 URL (以 https:// 开头)",
   "config.reporting.interval": "上报间隔(秒)",
   "config.reporting.interval.desc": "向服务器上报数据的最小时间间隔",
   "config.reporting.interval.error": "间隔必须在 5-30 秒之间",
   "config.wynnsource.global": "全局配置",
+  "config.wynnsource.title": "WynnSource 配置",
   "wynnsource.example": "示例"
 }

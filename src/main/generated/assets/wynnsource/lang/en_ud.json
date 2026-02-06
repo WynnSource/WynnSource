@@ -3,6 +3,10 @@
   "config.advanced.debug.desc": "Ǝuɐqꞁǝ ɐppᴉʇᴉouɐꞁ pǝqnᵷ ᴉuɟoɹɯɐʇᴉou onʇdnʇ",
   "config.advanced.loglevel": "Ꞁoᵷ Ꞁǝʌǝꞁ",
   "config.advanced.loglevel.desc": "Ꞁoᵷ onʇdnʇ ꞁǝʌǝꞁ ɟoɹ ʇɥǝ ɯop",
+  "config.button.apply": "Ɐddꞁʎ",
+  "config.button.cancel": "Ɔɐuɔǝꞁ",
+  "config.button.reset": "ᴚǝsǝʇ ʇo ᗡǝɟɐnꞁʇ",
+  "config.button.save_exit": "Sɐʌǝ ⅋ Ǝxᴉʇ",
   "config.global.advanced": "Ɐpʌɐuɔǝp Sǝʇʇᴉuᵷs",
   "config.global.enabled": "Ǝuɐqꞁǝ Wop",
   "config.global.enabled.desc": "ᗺʎ ǝuɐqꞁᴉuᵷ ʇɥᴉs ɯop' ʎon ǝxdꞁᴉɔᴉʇꞁʎ ɔousǝuʇ ʇo ʇɥǝ ɔoꞁꞁǝɔʇᴉou ɐup \n               ʇɹɐusɯᴉssᴉou oɟ ɔꞁᴉǝuʇ-sᴉpǝ ᵷɐɯǝ pɐʇɐ pnɹᴉuᵷ ᵷɐɯǝdꞁɐʎ˙",
@@ -13,10 +17,11 @@
   "config.reporting.enabled.desc": "∩dꞁoɐp ɔoꞁꞁǝɔʇǝp pɐʇɐ ʇo ʇɥǝ sǝɹʌǝɹ",
   "config.reporting.endpoint": "ⱯԀI Ǝupdoᴉuʇ",
   "config.reporting.endpoint.desc": "Sǝɹʌǝɹ ⱯԀI ǝupdoᴉuʇ ɟoɹ ndꞁoɐpᴉuᵷ pɐʇɐ",
-  "config.reporting.endpoint.error": "Ԁꞁǝɐsǝ ǝuʇǝɹ ɐ ʌɐꞁᴉp ∩ᴚꞀ )sʇɐɹʇᴉuᵷ ʍᴉʇɥ ɥʇʇd:// oɹ ɥʇʇds://(",
+  "config.reporting.endpoint.error": "Ԁꞁǝɐsǝ ǝuʇǝɹ ɐ ʌɐꞁᴉp ∩ᴚꞀ )sʇɐɹʇᴉuᵷ ʍᴉʇɥ ɥʇʇds://(",
   "config.reporting.interval": "ᴚǝdoɹʇ Iuʇǝɹʌɐꞁ )sǝɔ(",
   "config.reporting.interval.desc": "Wᴉuᴉɯnɯ ʇᴉɯǝ ᴉuʇǝɹʌɐꞁ qǝʇʍǝǝu ɹǝdoɹʇs ʇo ʇɥǝ sǝɹʌǝɹ",
   "config.reporting.interval.error": "Iuʇǝɹʌɐꞁ ɯnsʇ qǝ qǝʇʍǝǝu 5-Ɛ0 sǝɔoups",
   "config.wynnsource.global": "⅁ꞁoqɐꞁ Ɔouɟᴉᵷ",
+  "config.wynnsource.title": "MʎuuSonɹɔǝ Ɔouɟᴉᵷnɹɐʇᴉou",
   "wynnsource.example": "Ǝxɐɯdꞁǝ"
 }

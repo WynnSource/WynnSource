@@ -17,25 +17,25 @@
   "entrypoints": {
     "main": [
       {
-        "value": "fyw.fyi.WynnSource",
+        "value": "fyw.fyi.wynnsource.WynnSource",
         "adapter": "kotlin"
       }
     ],
     "client": [
       {
-        "value": "fyw.fyi.WynnSourceClient",
+        "value": "fyw.fyi.wynnsource.WynnSourceClient",
         "adapter": "kotlin"
       }
     ],
     "fabric-datagen": [
       {
-        "value": "fyw.fyi.WynnSourceDataGenerator",
+        "value": "fyw.fyi.wynnsource.WynnSourceDataGenerator",
         "adapter": "kotlin"
       }
     ],
     "modmenu": [
       {
-        "value": "fyw.fyi.config.ModMenuIntegration",
+        "value": "fyw.fyi.wynnsource.config.ModMenuIntegration",
         "adapter": "kotlin"
       }
     ]
