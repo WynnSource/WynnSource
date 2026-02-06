@@ -189,5 +189,6 @@ gradle-app.setting
 # IDEA
 .idea/*
 !.idea/runConfigurations
+!.idea/detekt.xml
 # minecraft
 run/
