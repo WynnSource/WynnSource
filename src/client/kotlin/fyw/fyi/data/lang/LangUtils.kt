@@ -8,7 +8,7 @@ object LangUtils {
             .toMap()
 
 
-    fun generateEn_ud(en: String): String {
-        return en.map { map[it] ?: it }.joinToString("")
-    }
+    fun String.toEnUd(): String = this.map { map[it] ?: it }.joinToString("")
+
+    fun String.trimAllLineStart(): String = this.lines().joinToString("\n") { it.trimStart() }
 }

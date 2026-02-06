@@ -18,6 +18,6 @@ class LangProvider(
         wrapperLookup: RegistryWrapper.WrapperLookup,
         translationBuilder: TranslationBuilder
     ) {
-        LangHandler.getTranslations(languageCode).forEach(translationBuilder::add)
+        LangRegistry.getTranslations(languageCode).forEach(translationBuilder::add)
     }
 }

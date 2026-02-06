@@ -3,7 +3,7 @@ package fyw.fyi.data.lang
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator
 
-object LangHandler {
+object LangRegistry {
     private val LANG = Object2ObjectOpenHashMap<String, Translatable>()
     private val SUPPORTED_LANGS = mapOf(
         "zh_cn" to Translatable::zh_cn,
