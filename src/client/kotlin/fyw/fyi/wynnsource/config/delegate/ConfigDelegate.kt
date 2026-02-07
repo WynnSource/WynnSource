@@ -44,7 +44,6 @@ class ConfigDelegate<T : Any>(
         // Validate before committing
         val result = entry.validate()
         if (!result.valid) {
-            // Revert pending value - don't commit invalid values programmatically
             entry.discardPending()
             return
         }

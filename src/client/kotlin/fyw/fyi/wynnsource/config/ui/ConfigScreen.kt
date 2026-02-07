@@ -21,6 +21,7 @@ import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
 import io.wispforest.owo.ui.core.UIComponent
 import io.wispforest.owo.ui.core.VerticalAlignment
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.text.Text
 import java.util.*
@@ -91,7 +92,13 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
 
     override fun build(rootComponent: FlowLayout) {
         rootComponent
-            .surface(Surface.VANILLA_TRANSLUCENT)
+            .surface(
+                if (MinecraftClient.getInstance().world == null) {
+                    Surface.optionsBackground()
+                } else {
+                    Surface.VANILLA_TRANSLUCENT.and(Surface.blur(5F, 10F))
+                }
+            )
             .horizontalAlignment(HorizontalAlignment.CENTER)
             .verticalAlignment(VerticalAlignment.CENTER)
 
@@ -380,14 +387,13 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
         // Slider if we have a range constraint
         if (range != null) {
             val (minVal, maxVal) = range
-            val sliderValue = (getValue(entry.getPending()) - minVal) / (maxVal - minVal)
+            val sliderValue = getValue(entry.getPending())
 
-            val slider = UIComponents.slider(Sizing.fill(95))
-            slider.value(sliderValue)
-            slider.onChanged().subscribe { newSliderValue ->
-                val actualValue = minVal + (newSliderValue * (maxVal - minVal))
-                setValue(actualValue)
-                valueLabel.text(Text.literal(formatValue(actualValue)))
+            val slider = UIComponents.discreteSlider(Sizing.fill(95), minVal, maxVal)
+            slider.setFromDiscreteValue(sliderValue)
+            slider.onChanged().subscribe { _ -> // The value is percentage from Slider
+                setValue(slider.discreteValue())
+                valueLabel.text(Text.literal(formatValue(slider.discreteValue())))
             }
             container.child(slider)
         } else {
@@ -396,6 +402,7 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
             textBox.text(formatValue(getValue(entry.getPending())))
             textBox.onChanged().subscribe { text ->
                 text.toDoubleOrNull()?.let { newValue ->
+                    // TODO we can add advanced parsing here
                     setValue(newValue)
                 }
             }

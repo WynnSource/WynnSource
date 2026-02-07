@@ -128,6 +128,15 @@ object GlobalConfigPage : ConfigPage(
                 "Enable additional debug information output"
             )
         )
+
+        var experimentalFlag by config(default = 0)
+            .name(
+                translatable(
+                    "config.advanced.experimental",
+                    "实验性功能标志",
+                    "Experimental Feature Flag"
+                )
+            )
     }
 
     /**

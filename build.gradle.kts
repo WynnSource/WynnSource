@@ -35,7 +35,7 @@ repositories {
         name = "DevAuth"
         url = uri("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
     }
-    
+
     maven {
         name = "Terraformers"
         url = uri("https://maven.terraformersmc.com/")
@@ -69,7 +69,6 @@ repositories {
             includeModule("com.github.kdl-org", "kdl4j") // kdl4j for owolib
         }
     }
-
 }
 
 loom {
