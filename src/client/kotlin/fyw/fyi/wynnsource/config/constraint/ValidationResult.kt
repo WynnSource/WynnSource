@@ -1,6 +1,6 @@
 package fyw.fyi.wynnsource.config.constraint
 
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 
 /**
  * Result of a constraint validation.

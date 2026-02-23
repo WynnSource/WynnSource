@@ -1,4 +1,4 @@
-package fyw.fyi.wynnsource.data.lang
+package fyw.fyi.wynnsource.datagen.lang
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider

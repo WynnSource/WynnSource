@@ -1,6 +1,8 @@
 package fyw.fyi.wynnsource.config.core
 
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.config.delegate.ConfigDelegate
+import fyw.fyi.wynnsource.datagen.lang.LangRegistry
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 
 /**
  * Represents a group of related config entries.
@@ -9,14 +11,31 @@ import fyw.fyi.wynnsource.data.lang.Translatable
  * @param name The display name of the group
  * @param expanded Whether the group is expanded by default
  */
-data class ConfigGroup(
+abstract class ConfigGroup(
     val name: Translatable,
     var expanded: Boolean = true
 ) {
     internal val entries = mutableListOf<ConfigEntry<*>>()
 
-    /**
-     * Get all config entries in this group.
-     */
+    internal inline fun <reified T : Any> config(
+        default: T,
+        name: Translatable? = null,
+        description: Translatable? = null
+    ): ConfigDelegate<T> {
+        val entry = ConfigEntry(
+            key = "",
+            default = default,
+            type = T::class,
+            name = name,
+            description = description
+        )
+        entries.add(entry)
+        return ConfigDelegate(entry)
+    }
+
+    protected fun translatable(key: String, cn: String, en: String): Translatable {
+        return LangRegistry.translatable(key, cn, en)
+    }
+
     fun getEntries(): List<ConfigEntry<*>> = entries.toList()
 }

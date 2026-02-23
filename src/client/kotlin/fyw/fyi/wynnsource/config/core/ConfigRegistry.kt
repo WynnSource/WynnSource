@@ -27,19 +27,8 @@ object ConfigRegistry {
         pages.add(0, page)
     }
 
-    /**
-     * Get all registered config pages.
-     */
     fun getPages(): List<ConfigPage> = pages.toList()
-
-    /**
-     * Get the global config page, if any.
-     */
     fun getGlobalPage(): ConfigPage? = globalPage
-
-    /**
-     * Get a config page by its ID.
-     */
     fun getPage(id: String): ConfigPage? = pages.find { it.id == id }
 
     /**
@@ -70,9 +59,6 @@ object ConfigRegistry {
         pages.forEach { it.discardChanges() }
     }
 
-    /**
-     * Clear all registered pages (useful for testing).
-     */
     internal fun clear() {
         pages.clear()
         globalPage = null

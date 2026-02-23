@@ -1,0 +1,8 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/kotlin:v33.5
+    out: kotlin
+  - remote: buf.build/protocolbuffers/java:v33.5
+    out: java
+inputs:
+  - directory: schema/proto

@@ -1,4 +1,4 @@
-package fyw.fyi.wynnsource.core.event
+package fyw.fyi.wynnsource.event
 
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
 

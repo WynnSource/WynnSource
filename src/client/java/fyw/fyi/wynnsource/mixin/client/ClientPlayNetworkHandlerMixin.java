@@ -1,7 +1,7 @@
 package fyw.fyi.wynnsource.mixin.client;
 
-import fyw.fyi.wynnsource.core.event.EventBus;
-import fyw.fyi.wynnsource.core.event.RemoteContainerScreenEvent;
+import fyw.fyi.wynnsource.event.EventBus;
+import fyw.fyi.wynnsource.event.RemoteContainerScreenEvent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

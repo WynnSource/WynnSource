@@ -2,8 +2,8 @@ package fyw.fyi.wynnsource.config.core
 
 import fyw.fyi.wynnsource.config.constraint.ValidationResult
 import fyw.fyi.wynnsource.config.delegate.ConfigDelegate
-import fyw.fyi.wynnsource.data.lang.LangRegistry
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.LangRegistry
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 import net.minecraft.item.Item
 
 /**
@@ -23,12 +23,9 @@ abstract class ConfigPage(
     @PublishedApi
     internal val entries = mutableListOf<ConfigEntry<*>>()
 
-    // Groups containing entries
+    // Foldable group containing entries
     @PublishedApi
     internal val groups = mutableListOf<ConfigGroup>()
-
-    // Current group being built (for DSL)
-    private var currentGroup: ConfigGroup? = null
 
     /**
      * Helper to create a Translatable via LangRegistry.
@@ -38,12 +35,11 @@ abstract class ConfigPage(
     }
 
     /**
-     * Register an entry to the current group or ungrouped entries.
-     * This is a non-inline helper to avoid visibility issues with inline functions.
+     * Register an entry to the ungrouped list.
      */
     @PublishedApi
     internal fun registerEntry(entry: ConfigEntry<*>) {
-        currentGroup?.entries?.add(entry) ?: entries.add(entry)
+        entries.add(entry)
     }
 
     /**
@@ -63,25 +59,15 @@ abstract class ConfigPage(
             description = description
         )
 
-        // Add to current group if inside a group block, otherwise to ungrouped entries
         registerEntry(entry)
 
         return ConfigDelegate(entry)
     }
 
     /**
-     * Create a config group using DSL syntax.
-     * All config entries defined inside the block will belong to this group.
+     * Register a group.
      */
-    protected fun group(
-        name: Translatable,
-        expanded: Boolean = true,
-        block: ConfigGroup.() -> Unit
-    ): ConfigGroup {
-        val group = ConfigGroup(name, expanded)
-        currentGroup = group
-        group.block()
-        currentGroup = null
+    protected fun <G : ConfigGroup> group(group: G): G {
         groups.add(group)
         return group
     }

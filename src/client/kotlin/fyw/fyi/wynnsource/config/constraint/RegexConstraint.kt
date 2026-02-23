@@ -1,6 +1,6 @@
 package fyw.fyi.wynnsource.config.constraint
 
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 
 /**
  * Constraint that validates a string matches a regular expression pattern.

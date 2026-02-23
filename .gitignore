@@ -189,8 +189,6 @@ gradle-app.setting
 .settings
 # IDEA
 .idea/*
-!.idea/runConfigurations/Minecraft_Client.xml
-!.idea/runConfigurations/Data_Generation.xml
 !.idea/detekt.xml
 # minecraft
 run/

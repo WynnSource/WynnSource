@@ -1,15 +1,12 @@
 package fyw.fyi.wynnsource.config
 
+import fyw.fyi.wynnsource.config.core.ConfigGroup
 import fyw.fyi.wynnsource.config.core.ConfigPage
 import fyw.fyi.wynnsource.config.delegate.range
 import fyw.fyi.wynnsource.config.delegate.url
-import fyw.fyi.wynnsource.data.lang.LangRegistry
-import fyw.fyi.wynnsource.data.lang.LangUtils.trimAllLineStart
+import fyw.fyi.wynnsource.datagen.lang.LangRegistry
+import fyw.fyi.wynnsource.utils.NetUtils
 
-/**
- * Global configuration page for WynnSource.
- * This is the main config page that is always shown first.
- */
 @Suppress("unused")
 object GlobalConfigPage : ConfigPage(
     id = "global",
@@ -19,42 +16,10 @@ object GlobalConfigPage : ConfigPage(
         "Global Config"
     )
 ) {
-    var enabled by config(
-        default = false,
-        name = translatable("config.global.enabled", "启用模组", "Enable Mod"),
-        description = translatable(
-            "config.global.enabled.desc",
-            """启用此模组即表示您明确同意在游戏过程中
-                收集并传输客户端游戏数据。
-                这些数据可能包括但不限于所有游戏内活动信息，
-                以及您的玩家标识符（UUID）的哈希版本。
-                您理解并同意，该数据仅用于实现、维护和优化模组功能，
-                并可能用于与模组运行相关的统计或分析目的。""".trimAllLineStart(),
-            """By enabling this mod, you explicitly consent to the
-                collection and transmission of client-side game data during gameplay.
-                This data may include, but is not limited to, all in-game activity information
-                and a hashed version of your player identifier (uuid).
-                You acknowledge and agree that such data is collected solely for the purpose of enabling,
-                maintaining, and improving mod functionality,
-                and may be used for statistical or analytical purposes related to the mod’s operation.
-            """.trimAllLineStart()
-        )
-    )
-
-    val reporting = group(
+    object Reporting : ConfigGroup(
         name = translatable("config.global.reporting", "数据上报", "Reporting"),
         expanded = true
     ) {
-        var reportToServer by config(
-            default = false,
-            name = translatable("config.reporting.enabled", "启用上报", "Enable Reporting"),
-            description = translatable(
-                "config.reporting.enabled.desc",
-                "将收集到的数据上传至服务器",
-                "Upload collected data to the server"
-            )
-        )
-
         var reportInterval by config(default = 15L)
             .name(translatable("config.reporting.interval", "上报间隔(秒)", "Report Interval (sec)"))
             .description(
@@ -73,9 +38,6 @@ object GlobalConfigPage : ConfigPage(
                     "Interval must be between 5-30 seconds"
                 )
             )
-            .onChange { old, new ->
-                println("Report interval changed from $old to $new")
-            }
 
         var apiEndpoint by config(default = "")
             .name(translatable("config.reporting.endpoint", "API 地址", "API Endpoint"))
@@ -89,10 +51,11 @@ object GlobalConfigPage : ConfigPage(
             .url(
                 translatable(
                     "config.reporting.endpoint.error",
-                    "请输入有效的 URL (以 https:// 开头)",
-                    "Please enter a valid URL (starting with https://)"
+                    "请输入有效的 URL (以 http(s):// 开头)",
+                    "Please enter a valid URL (starting with http(s)://)"
                 )
-            )
+            ).onChange { _, new -> NetUtils.updateBaseUrl(new) }
+            .onLoad { new -> NetUtils.updateBaseUrl(new) }
 
         var apiKey by config(default = "")
             .name(translatable("config.reporting.apikey", "API 密钥", "API Key"))
@@ -105,7 +68,11 @@ object GlobalConfigPage : ConfigPage(
             )
     }
 
-    val advanced = group(
+    val reporting = group(
+        Reporting
+    )
+
+    object Advanced : ConfigGroup(
         name = translatable("config.global.advanced", "高级设置", "Advanced Settings"),
         expanded = false
     ) {
@@ -133,15 +100,14 @@ object GlobalConfigPage : ConfigPage(
             .name(
                 translatable(
                     "config.advanced.experimental",
-                    "实验性功能标志",
-                    "Experimental Feature Flag"
+                    "实验性功能",
+                    "Experimental Features"
                 )
             )
     }
 
-    /**
-     * Log level enum.
-     */
+    val advanced = group(Advanced)
+
     enum class LogLevel {
         DEBUG, INFO, WARN, ERROR
     }

@@ -1,0 +1,1095 @@
+openapi: 3.1.0
+info:
+  title: WynnSource Server
+  summary: WynnSource Server API Documentation
+  description: The server component of WynnSource - a Wynncraft Crowdsourcing Mod.
+  version: 0.1.0
+paths:
+  /api/v2/manage/user:
+    get:
+      tags:
+        - management
+      summary: Get User Info by Token
+      description: |-
+        Get information about a user by their token.
+
+        🛡️ Required Permission(s): `admin.users.read`
+      operationId: get_user_info_by_token
+      security:
+        - APIKeyHeader: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+            title: Token
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_list_UserInfoResponse__"
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+    delete:
+      tags:
+        - management
+      summary: Delete User
+      description: |-
+        Delete a user by their token string.
+
+        🛡️ Required Permission(s): `admin.users.write`
+      operationId: delete_user
+      security:
+        - APIKeyHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              title: Tokens
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_dict_"
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+  /api/v2/manage/user/all:
+    get:
+      tags:
+        - management
+      summary: List Users
+      description: |-
+        List all users with their permissions.
+
+        🛡️ Required Permission(s): `admin.users.read`
+      operationId: get_users
+      security:
+        - APIKeyHeader: []
+      parameters:
+        - name: inactive
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+            title: Inactive
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_list_UserInfoResponse__"
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+  /api/v2/manage/user/self:
+    get:
+      tags:
+        - management
+      summary: Get Self User Info
+      description: Get information about the current user, including permissions and
+        common IPs.
+      operationId: get_self_user_info
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_UserInfoResponse_"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+      security:
+        - APIKeyHeader: []
+  /api/v2/manage/user/register:
+    post:
+      tags:
+        - management
+      summary: Register New User
+      description: |-
+        Register a new user with the given token.
+
+        ⏱️ Rate Limited: `1` requests per `1 hour`  based on IP.
+      operationId: register_user
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Token
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_UserInfoResponse_"
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
+  /api/v2/manage/user/create:
+    post:
+      tags:
+        - management
+      summary: Create New Users
+      description: |-
+        Create a new user with specified token and permissions.
+
+        🛡️ Required Permission(s): `admin.users.write`
+      operationId: create_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: "#/components/schemas/UserInfoRequest"
+              type: array
+              title: Tokens
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_list_UserInfoResponse__"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+      security:
+        - APIKeyHeader: []
+  /api/v2/manage/user/permissions:
+    put:
+      tags:
+        - management
+      summary: Add Permissions to User
+      description: |-
+        Add permissions to existing users.
+
+        🛡️ Required Permission(s): `admin.users.write`
+      operationId: add_permissions_to_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Body_add_permissions_to_user"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_list_UserInfoResponse__"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+      security:
+        - APIKeyHeader: []
+    delete:
+      tags:
+        - management
+      summary: Remove Permissions from User
+      description: |-
+        Remove permissions from existing users.
+
+        🛡️ Required Permission(s): `admin.users.write`
+      operationId: remove_permissions_from_user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Body_remove_permissions_from_user"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_list_UserInfoResponse__"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+      security:
+        - APIKeyHeader: []
+  /api/v2/pool/submit:
+    post:
+      tags:
+        - pool
+      summary: Submit Pool Data
+      description: |-
+        Endpoint for clients to submit pool data.
+
+        ⏱️ Rate Limited: `30` requests per `1 minute`  based on user.
+      operationId: submit_pool_data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: "#/components/schemas/PoolSubmissionSchema"
+              type: array
+              title: Data
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          headers:
+            X-RateLimit-Limit:
+              description: Requests allowed per window
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until reset
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmptyResponse"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "429":
+          description: Too Many Requests
+          headers:
+            X-RateLimit-Limit:
+              description: Requests allowed per window
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until reset
+              schema:
+                type: integer
+            X-Retry-After:
+              description: Seconds until you can retry
+              schema:
+                type: integer
+      security:
+        - APIKeyHeader: []
+  /api/v2/pool/pools/{pool_type}/{region}:
+    get:
+      tags:
+        - pool
+      summary: Get Current Pool by Type and Region
+      description: |-
+        Get pools by type and region.
+
+        ⌛ This response is cached for `2 minutes`.
+
+        ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
+      operationId: get_pools_by_type_and_region
+      parameters:
+        - name: pool_type
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/PoolType"
+        - name: region
+          in: path
+          required: true
+          schema:
+            anyOf:
+              - $ref: "#/components/schemas/LootPoolRegion"
+              - $ref: "#/components/schemas/RaidRegion"
+            title: Region
+        - name: item_return_type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ItemReturnType"
+            default: b64
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_PoolConsensusResponse_"
+          headers:
+            X-Cache:
+              schema:
+                type: string
+                enum:
+                  - HIT
+                  - MISS
+              description: Cache status
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
+  /api/v2/pool/pools/recalc:
+    get:
+      tags:
+        - pool
+      summary: Force Recalculate Pool Consensus
+      description: >-
+        Force recalculate pool consensus. This is useful for admins to fix any
+        issues with the consensus calculation.
+
+
+        🛡️ Required Permission(s): `pool.recalc`
+      operationId: recalculate_pools
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmptyResponse"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+      security:
+        - APIKeyHeader: []
+  /api/v2/test:
+    get:
+      tags:
+        - misc
+      summary: Test endpoint
+      description: >-
+        Test endpoint for various features like rate limiting, caching, and
+        permissions.
+
+
+        ⌛ This response is cached for `1 minute`.
+
+
+        🛡️ Required Permission(s): `api.test`
+
+
+        ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
+      operationId: test_endpoint
+      responses:
+        "200":
+          description: Successful Response
+          headers:
+            X-Cache:
+              description: Cache status
+              schema:
+                type: string
+                enum:
+                  - HIT
+                  - MISS
+            X-RateLimit-Limit:
+              description: Requests allowed per window
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until reset
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "429":
+          description: Too Many Requests
+          headers:
+            X-RateLimit-Limit:
+              description: Requests allowed per window
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until reset
+              schema:
+                type: integer
+            X-Retry-After:
+              description: Seconds until you can retry
+              schema:
+                type: integer
+      security:
+        - APIKeyHeader: []
+  /api/v2/mappings/{mapping_type}:
+    get:
+      tags:
+        - misc
+      summary: Get ID Mappings
+      description: |-
+        Get ID mappings for a given type.
+
+        ⌛ This response is cached for `1 hour`.
+
+        ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
+      operationId: get_mappings
+      parameters:
+        - name: mapping_type
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/MappingType"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MappingResponse"
+          headers:
+            X-Cache:
+              schema:
+                type: string
+                enum:
+                  - HIT
+                  - MISS
+              description: Cache status
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
+  /:
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+components:
+  schemas:
+    Body_add_permissions_to_user:
+      properties:
+        token_str:
+          items:
+            type: string
+          type: array
+          title: Token Str
+        permissions:
+          items:
+            type: string
+          type: array
+          title: Permissions
+      type: object
+      required:
+        - token_str
+        - permissions
+      title: Body_add_permissions_to_user
+    Body_remove_permissions_from_user:
+      properties:
+        token_str:
+          items:
+            type: string
+          type: array
+          title: Token Str
+        permissions:
+          items:
+            type: string
+          type: array
+          title: Permissions
+      type: object
+      required:
+        - token_str
+        - permissions
+      title: Body_remove_permissions_from_user
+    EmptyResponse:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          default: {}
+          example: {}
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      title: EmptyResponse
+      description: Empty response model for v1.
+    ErrorCodes:
+      type: string
+      enum:
+        - OK
+        - UNKNOWN_ERROR
+        - VALIDATION_ERROR
+        - NOT_FOUND
+        - HTTP_ERROR
+      title: ErrorCodes
+      description: Enum for error codes.
+    ErrorDetails:
+      properties:
+        type:
+          type: string
+          title: Type
+        loc:
+          items:
+            anyOf:
+              - type: integer
+              - type: string
+          type: array
+          title: Loc
+        msg:
+          type: string
+          title: Msg
+        input:
+          title: Input
+        ctx:
+          additionalProperties: true
+          type: object
+          title: Ctx
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+        - type
+        - loc
+        - msg
+        - input
+      title: ErrorDetails
+    ItemReturnType:
+      type: string
+      enum:
+        - b64
+        - json
+        - name_only
+      title: ItemReturnType
+    LootPoolRegion:
+      type: string
+      enum:
+        - Sky
+        - Molten
+        - SE
+        - Canyon
+        - Corkus
+      title: LootPoolRegion
+    Mapping:
+      properties:
+        id:
+          type: integer
+          title: Id
+        key:
+          type: string
+          title: Key
+      type: object
+      required:
+        - id
+        - key
+      title: Mapping
+    MappingResponse:
+      properties:
+        lastUpdated:
+          type: string
+          format: date-time
+          title: Lastupdated
+        data:
+          items:
+            $ref: "#/components/schemas/Mapping"
+          type: array
+          title: Data
+      type: object
+      required:
+        - lastUpdated
+        - data
+      title: MappingResponse
+      description: Response model for ID to name mappings.
+    MappingType:
+      type: string
+      enum:
+        - identification
+        - shiny
+      title: MappingType
+    PageConsensus:
+      properties:
+        page:
+          type: integer
+          title: Page
+          description: The page number
+        items:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - items:
+                additionalProperties: true
+                type: object
+              type: array
+          title: Items
+          description: Consensus item data for the page, format depends on
+            item_return_type query parameter
+          examples:
+            - - aXRlbV9kYXRhXzE=
+              - aXRlbV9kYXRhXzI=
+        confidence:
+          type: number
+          title: Confidence
+          description: Confidence level, between 0 and 1
+      type: object
+      required:
+        - page
+        - items
+        - confidence
+      title: PageConsensus
+    PoolConsensusResponse:
+      properties:
+        pool_type:
+          $ref: "#/components/schemas/PoolType"
+        region:
+          type: string
+          title: Region
+          description: Region name, must be one of the valid regions for the pool type
+        page_consensus:
+          items:
+            $ref: "#/components/schemas/PageConsensus"
+          type: array
+          title: Page Consensus
+      type: object
+      required:
+        - pool_type
+        - region
+        - page_consensus
+      title: PoolConsensusResponse
+    PoolSubmissionSchema:
+      properties:
+        pool_type:
+          $ref: "#/components/schemas/PoolType"
+        region:
+          type: string
+          title: Region
+          description: Region name, must be one of the valid regions for the pool type
+        page:
+          type: integer
+          title: Page
+        client_timestamp:
+          type: string
+          format: date-time
+          title: Client Timestamp
+        mod_version:
+          type: string
+          title: Mod Version
+        items:
+          items:
+            type: string
+          type: array
+          title: Items
+          description: base64-encoded protobuf bytes for item
+          examples:
+            - - aXRlbV9kYXRhXzE=
+              - aXRlbV9kYXRhXzI=
+      type: object
+      required:
+        - pool_type
+        - region
+        - page
+        - client_timestamp
+        - mod_version
+        - items
+      title: PoolSubmissionSchema
+    PoolType:
+      type: string
+      enum:
+        - lr_item_pool
+        - raid_aspect_pool
+        - raid_item_pool
+      title: PoolType
+    RaidRegion:
+      type: string
+      enum:
+        - TNA
+        - TCC
+        - NOL
+        - NOTG
+      title: RaidRegion
+    StatusData:
+      properties:
+        status:
+          type: string
+          title: Status
+          default: OK
+        version:
+          type: string
+          title: Version
+          default: 0.1.0
+      type: object
+      title: StatusData
+      description: Status data model for v1 responses.
+    StatusResponse:
+      properties:
+        data:
+          $ref: "#/components/schemas/StatusData"
+          default:
+            status: OK
+            version: 0.1.0
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      title: StatusResponse
+      description: Status response model for v1.
+    UserInfoRequest:
+      properties:
+        token:
+          type: string
+          title: Token
+        permissions:
+          items:
+            type: string
+          type: array
+          title: Permissions
+        expires_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+          title: Expires At
+      type: object
+      required:
+        - token
+        - permissions
+      title: UserInfoRequest
+    UserInfoResponse:
+      properties:
+        id:
+          type: integer
+          title: Id
+        token:
+          type: string
+          title: Token
+        permissions:
+          items:
+            type: string
+          type: array
+          title: Permissions
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expires_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+          title: Expires At
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        creation_ip:
+          type: string
+          title: Creation Ip
+        common_ips:
+          items:
+            type: string
+          type: array
+          title: Common Ips
+        score:
+          type: integer
+          title: Score
+      type: object
+      required:
+        - id
+        - token
+        - permissions
+        - created_at
+        - creation_ip
+        - common_ips
+        - score
+      title: UserInfoResponse
+    ValidationErrorResponse:
+      properties:
+        data:
+          items:
+            $ref: "#/components/schemas/ErrorDetails"
+          type: array
+          title: Data
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: VALIDATION_ERROR
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: ValidationErrorResponse
+      description: Validation error response model.
+    WCSResponse_PoolConsensusResponse_:
+      properties:
+        data:
+          $ref: "#/components/schemas/PoolConsensusResponse"
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: WCSResponse[PoolConsensusResponse]
+    WCSResponse_UserInfoResponse_:
+      properties:
+        data:
+          $ref: "#/components/schemas/UserInfoResponse"
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: WCSResponse[UserInfoResponse]
+    WCSResponse_dict_:
+      properties:
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: WCSResponse[dict]
+    WCSResponse_list_UserInfoResponse__:
+      properties:
+        data:
+          items:
+            $ref: "#/components/schemas/UserInfoResponse"
+          type: array
+          title: Data
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: WCSResponse[list[UserInfoResponse]]
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+x-tagGroups:
+  - name: v2
+    tags:
+      - management
+      - pool
+      - market
+      - misc

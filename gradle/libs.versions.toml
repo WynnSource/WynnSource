@@ -16,9 +16,22 @@ detekt = "1.23.8"
 # Version Management
 axion-release = "1.18.16"
 
+# Protobuf
+buf = "0.11.0"
+protobuf = "4.33.5"
+
+# openapi generator
+openapi-generator = "7.20.0"
+
+# ktor
+ktor = "3.4.0"
+
+# shadow
+shadow = "9.3.1"
+
 # Other Libraries
 mod-menu = "17.0.0-beta.2"
-wynntils = "v4.0.0-beta.4-fabric"
+wynntils = "v4.0.1-fabric"
 owo-lib = "0.13.0+1.21.11"
 
 
@@ -36,6 +49,16 @@ fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-l
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
 
+# Protobuf
+protobuf = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
+protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util", version.ref = "protobuf" }
+
+# Ktor
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
 # Other Libraries
 modMenu = { module = "com.terraformersmc:modmenu", version.ref = "mod-menu" }
 wynntils = { module = "maven.modrinth:wynntils", version.ref = "wynntils" }
@@ -48,9 +71,15 @@ resourcePackCached = { module = "maven.modrinth:resourcepackcached", version.ref
 
 [bundles]
 fabric = ["fabric-loader", "fabric-api", "fabric-kotlin"]
+protobuf = ["protobuf", "protobuf-java-util"]
+ktor = ["ktor-client-core", "ktor-client-cio", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
 
 [plugins]
 fabric-loom = { id = "net.fabricmc.fabric-loom-remap", version.ref = "fabric-loom" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }
+buf = { id = "build.buf", version.ref = "buf" }
+openapi-generator = { id = "org.openapi.generator", version.ref = "openapi-generator" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

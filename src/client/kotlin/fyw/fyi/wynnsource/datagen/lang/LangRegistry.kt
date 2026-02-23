@@ -1,6 +1,6 @@
-package fyw.fyi.wynnsource.data.lang
+package fyw.fyi.wynnsource.datagen.lang
 
-import fyw.fyi.wynnsource.data.lang.LangUtils.trimAllLineStart
+import fyw.fyi.wynnsource.datagen.lang.LangUtils.trimAllLineStart
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator
 
@@ -8,6 +8,7 @@ object LangRegistry {
     private val LANG = Object2ObjectOpenHashMap<String, Translatable>()
     private val SUPPORTED_LANGS = mapOf(
         "zh_cn" to Translatable::zh_cn,
+        "zh_tw" to Translatable::zh_cn, // No traditional Chinese translations yet
         "en_us" to Translatable::en_us,
         "en_ud" to Translatable::en_ud,
     )

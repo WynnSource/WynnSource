@@ -1,4 +1,4 @@
-package fyw.fyi.wynnsource.core.event
+package fyw.fyi.wynnsource.event
 
 import fyw.fyi.wynnsource.WynnSource
 import kotlinx.coroutines.CancellationException
@@ -29,7 +29,6 @@ object EventBus {
         _events.tryEmit(event)
     }
 
-    @Suppress("TooGenericExceptionCaught")
     inline fun <reified T : BaseEvent> subscribe(
         scope: CoroutineScope,
         crossinline handler: suspend (T) -> Unit

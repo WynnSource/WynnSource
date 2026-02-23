@@ -5,13 +5,11 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import fyw.fyi.wynnsource.WynnSource
+import fyw.fyi.wynnsource.utils.FileUtils
 import net.fabricmc.loader.api.FabricLoader
-import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import kotlin.io.path.exists
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 /**
  * Handles JSON serialization and deserialization of config pages.
@@ -23,7 +21,6 @@ import kotlin.io.path.writeText
  *   - Existing keys that still exist in code: preserved (loaded from file).
  *   - New keys added in code: filled with default values.
  *   - Stale keys removed from code: dropped from the file.
- *   - The merged result is written back to disk to keep the file up-to-date.
  */
 object ConfigSerializer {
     private val logger = WynnSource.logger
@@ -34,42 +31,17 @@ object ConfigSerializer {
         .create()
 
     private val configDir by lazy {
-        FabricLoader.getInstance().configDir.resolve("wynnsource").also {
+        FabricLoader.getInstance().gameDir.resolve("wynnsource").resolve("config").also {
             if (!it.exists()) {
                 Files.createDirectories(it)
             }
         }
     }
 
-    /**
-     * Save a config page to its JSON file.
-     * Writes to a temporary file first, then renames for atomicity.
-     */
-    @Suppress("TooGenericExceptionCaught")
     fun save(page: ConfigPage) {
         try {
             val jsonObject = buildJsonFromEntries(page)
-            val file = configDir.resolve("${page.id}.json")
-            val tmpFile = configDir.resolve("${page.id}.json.tmp")
-
-            tmpFile.writeText(gson.toJson(jsonObject))
-            Files.move(
-                tmpFile,
-                file,
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.ATOMIC_MOVE
-            )
-            logger.debug("Saved config page '{}' to {}", page.id, file)
-        } catch (_: AtomicMoveNotSupportedException) {
-            // Fallback: non-atomic write if filesystem doesn't support atomic move
-            try {
-                val jsonObject = buildJsonFromEntries(page)
-                val file = configDir.resolve("${page.id}.json")
-                file.writeText(gson.toJson(jsonObject))
-                logger.debug("Saved config page '{}' to {} (non-atomic)", page.id, file)
-            } catch (e: Exception) {
-                logger.error("Failed to save config page '${page.id}'", e)
-            }
+            FileUtils.safeSave(gson.toJson(jsonObject), configDir, page.id)
         } catch (e: Exception) {
             logger.error("Failed to save config page '${page.id}'", e)
         }
@@ -78,18 +50,13 @@ object ConfigSerializer {
     /**
      * Load a config page from its JSON file.
      *
-     * If the file does not exist, generates a complete default config and saves it.
+     * If the file does not exist, generates it with default values.
      * If the file exists, merges it with current definitions:
-     * - Loads values for keys that exist both in file and in code.
-     * - Adds default values for new keys not present in the file.
-     * - Removes stale keys that are in the file but no longer in code.
-     * - Writes the merged result back to disk.
      */
     fun load(page: ConfigPage) {
         val file = configDir.resolve("${page.id}.json")
 
         if (!file.exists()) {
-            // generate defaults
             logger.info("Config file for '{}' does not exist, generating defaults", page.id)
             save(page)
             return
@@ -116,7 +83,8 @@ object ConfigSerializer {
                     // New key in code, not in file - use default (already set)
                     logger.info(
                         "New config key '{}' in page '{}', using default value",
-                        entry.key, page.id
+                        entry.key,
+                        page.id
                     )
                     needsResave = true
                 }
@@ -127,12 +95,12 @@ object ConfigSerializer {
             if (staleKeys.isNotEmpty()) {
                 logger.info(
                     "Removing stale config keys from page '{}': {}",
-                    page.id, staleKeys.joinToString(", ")
+                    page.id,
+                    staleKeys.joinToString(", ")
                 )
                 needsResave = true
             }
 
-            // Re-save if there were changes (new or removed keys)
             if (needsResave) {
                 save(page)
             }
@@ -140,19 +108,15 @@ object ConfigSerializer {
             logger.debug("Loaded config page '{}' from {}", page.id, file)
         } catch (e: Exception) {
             logger.error("Failed to load config page '${page.id}', regenerating defaults", e)
-            // On corruption, regenerate defaults
+            // On corruption, regenerate
             save(page)
         }
     }
 
-    /**
-     * Build a JsonObject from all entries' committed values.
-     */
     private fun buildJsonFromEntries(page: ConfigPage): JsonObject {
         val jsonObject = JsonObject()
         page.allEntries().forEach { entry ->
             val value = entry.getCommitted()
-            // For enums, serialize as the name string
             if (entry.type.java.isEnum) {
                 jsonObject.addProperty(entry.key, (value as Enum<*>).name)
             } else {

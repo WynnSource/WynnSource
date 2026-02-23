@@ -1,4 +1,4 @@
-package fyw.fyi.wynnsource.data.lang
+package fyw.fyi.wynnsource.datagen.lang
 
 object LangUtils {
     // From https://github.com/The-Fireplace/MC-en-UD-Generator/blob/5c3456262be80bf5e56180b04b726c9dbf35e57a/src/main/kotlin/thefireplace/en2ud/EN2UD.kt#L40

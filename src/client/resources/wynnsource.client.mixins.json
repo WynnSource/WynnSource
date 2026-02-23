@@ -3,7 +3,8 @@
   "package": "fyw.fyi.wynnsource.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ClientPlayNetworkHandlerMixin"
+    "ClientPlayNetworkHandlerMixin",
+    "wynntils.ShinyStatTypesAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

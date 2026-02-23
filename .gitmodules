@@ -1,0 +1,4 @@
+[submodule "schema"]
+	path = schema
+	url = git@github.com:WynnSource/schema.git
+	branch = main

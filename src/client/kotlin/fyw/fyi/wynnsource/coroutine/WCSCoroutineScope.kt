@@ -1,4 +1,4 @@
-package fyw.fyi.wynnsource.core.coroutine
+package fyw.fyi.wynnsource.coroutine
 
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

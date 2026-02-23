@@ -5,8 +5,8 @@ import fyw.fyi.wynnsource.config.core.ConfigEntry
 import fyw.fyi.wynnsource.config.core.ConfigGroup
 import fyw.fyi.wynnsource.config.core.ConfigPage
 import fyw.fyi.wynnsource.config.core.ConfigRegistry
-import fyw.fyi.wynnsource.data.lang.LangRegistry
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.LangRegistry
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 import io.wispforest.owo.ui.base.BaseOwoScreen
 import io.wispforest.owo.ui.component.ButtonComponent
 import io.wispforest.owo.ui.component.LabelComponent

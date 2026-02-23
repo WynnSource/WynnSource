@@ -1,8 +1,19 @@
+import build.buf.gradle.BUF_GENERATE_TASK_NAME
+import build.buf.gradle.GENERATED_DIR
+import build.buf.gradle.GenerateTask
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.fabricmc.loom.task.RemapJarTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.fabric.loom)
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.detekt)
     alias(libs.plugins.axion.release)
+    alias(libs.plugins.buf)
+    alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.shadow)
     `maven-publish`
 }
 
@@ -96,6 +107,14 @@ dependencies {
     // Fabric
     modImplementation(libs.bundles.fabric)
 
+    // Protobuf
+    shadow(libs.bundles.protobuf)
+    implementation(libs.bundles.protobuf)
+
+    // Ktor
+    shadow(libs.bundles.ktor)
+    implementation(libs.bundles.ktor)
+
     // ModMenu integration
     modImplementation(libs.modMenu)
     // Wynntils
@@ -141,11 +160,20 @@ tasks.processResources {
 
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
+    dependsOn(tasks.named(BUF_GENERATE_TASK_NAME))
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+
+    dependsOn(tasks.named(BUF_GENERATE_TASK_NAME))
+    dependsOn(tasks.named("openApiGenerate"))
+
+    sourceSets.main {
+        kotlin.srcDir(layout.buildDirectory.dir("bufbuild/$GENERATED_DIR/kotlin"))
+        kotlin.srcDir(layout.buildDirectory.dir("openapi/src/main/kotlin"))
     }
 }
 
@@ -154,6 +182,10 @@ java {
 
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+
+    sourceSets.main {
+        java.srcDir(layout.buildDirectory.dir("bufbuild/$GENERATED_DIR/java"))
+    }
 }
 
 tasks.jar {
@@ -162,4 +194,100 @@ tasks.jar {
     from("LICENSE") {
         rename { "${it}_${inputs.properties["archivesName"]}" }
     }
+}
+
+
+
+tasks.named<Jar>("sourcesJar") {
+    // Prevent Gradle from erroring implicit use
+    dependsOn(BUF_GENERATE_TASK_NAME)
+    dependsOn(tasks.named("openApiGenerate"))
+}
+
+// Buf
+tasks.named<GenerateTask>(BUF_GENERATE_TASK_NAME) {
+    // Prevent Gradle from erroring implicit use
+    // no idea why buf use this
+    dependsOn(tasks.named("downloadAssets"))
+}
+
+buf {
+    enforceFormat = false
+    configFileLocation = rootProject.file("schema/buf.yaml")
+    generate {
+        includeImports = true
+        templateFileLocation = rootProject.file("buf.gen.yaml")
+    }
+}
+
+tasks.named("bufLint") {
+    enabled = false
+}
+
+// OpenAPI Generator
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec = "$projectDir/src/main/resources/wynnsource-api.yaml"
+    outputDir = layout.buildDirectory.dir("openapi").get().asFile.absolutePath
+
+    configOptions.set(
+        mapOf(
+            "useCoroutines" to "true",
+            "library" to "jvm-ktor",
+            "serializationLibrary" to "kotlinx_serialization",
+            "enumPropertyNaming" to "original",
+            "packageName" to "fyw.fyi.wynnsource.server",
+            "apiPackage" to "fyw.fyi.wynnsource.server.api",
+            "modelPackage" to "fyw.fyi.wynnsource.server.model",
+        )
+    )
+    typeMappings.set(
+        mapOf(
+            "AnyType" to "JsonElement",
+            "java.time.OffsetDateTime" to "kotlin.time.Instant",
+        )
+    )
+    importMappings.set(
+        mapOf(
+            "JsonElement" to "kotlinx.serialization.json.JsonElement",
+        )
+    )
+}
+
+// Shadow Jar
+tasks.withType<ShadowJar> {
+    archiveClassifier.set("shadow")
+    mergeServiceFiles()
+
+    from(sourceSets.main.get().output)
+    sourceSets.findByName("client")?.let { from(it.output) }
+
+    configurations = listOf(project.configurations.shadow.get())
+    dependencies {
+        include(dependency("io.ktor:.*:.*"))
+        include(dependency("com.google.protobuf:.*:.*"))
+    }
+
+    // Ktor
+    relocate("io.ktor", "fyw.fyi.wynnsource.libs.io.ktor")
+
+    // Protobuf
+    relocate("com.google.protobuf", "fyw.fyi.wynnsource.libs.com.google.protobuf")
+
+    exclude("**/*.proto") // Exclude .proto wellknown types, which are not needed at runtime
+    exclude("java/core/**") // Protobuf's Java core library, which is not needed at runtime
+    exclude("src/**") // Google why!!
+    exclude("google/protobuf/**")
+    exclude("META-INF/maven/**")
+    exclude("META-INF/scripts/**")
+    exclude("META-INF/*kotlin_module") // No need for them in runtime
+
+    dependsOn(tasks.named("jar"))
+}
+
+tasks.withType<RemapJarTask> {
+    val shadowJar = tasks.named<ShadowJar>("shadowJar")
+    dependsOn(shadowJar)
+    mustRunAfter(shadowJar)
+    inputFile = shadowJar.get().archiveFile
 }

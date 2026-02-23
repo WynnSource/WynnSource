@@ -3,7 +3,7 @@ package fyw.fyi.wynnsource.config.delegate
 import fyw.fyi.wynnsource.config.constraint.Constraint
 import fyw.fyi.wynnsource.config.constraint.PredicateConstraint
 import fyw.fyi.wynnsource.config.core.ConfigEntry
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -71,6 +71,14 @@ class ConfigDelegate<T : Any>(
      */
     fun onChange(listener: (old: T, new: T) -> Unit): ConfigDelegate<T> {
         entry.addChangeListener(listener)
+        return this
+    }
+
+    /**
+     * Add a load listener that is called when the value is loaded from file.
+     */
+    fun onLoad(listener: (new: T) -> Unit): ConfigDelegate<T> {
+        entry.addLoadListener(listener)
         return this
     }
 

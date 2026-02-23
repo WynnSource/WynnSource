@@ -2,7 +2,7 @@ package fyw.fyi.wynnsource.config.core
 
 import fyw.fyi.wynnsource.config.constraint.Constraint
 import fyw.fyi.wynnsource.config.constraint.ValidationResult
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 import kotlin.reflect.KClass
 
 /**
@@ -23,6 +23,7 @@ class ConfigEntry<T : Any>(
 ) {
     internal val constraints = mutableListOf<Constraint<T>>()
     internal val changeListeners = mutableListOf<(old: T, new: T) -> Unit>()
+    internal val loadListeners = mutableListOf<(new: T) -> Unit>() // includes change by config load
 
     // The value that has been saved/committed
     private var committedValue: T = default
@@ -30,29 +31,17 @@ class ConfigEntry<T : Any>(
     // The value currently being edited in the UI (not yet saved)
     private var pendingValue: T = default
 
-    /**
-     * Get the pending (currently edited) value.
-     */
     fun getPending(): T = pendingValue
-
-    /**
-     * Set the pending value (called from UI when user edits).
-     */
     fun setPending(value: T) {
         pendingValue = value
     }
 
-    /**
-     * Get the committed (saved) value.
-     */
     fun getCommitted(): T = committedValue
-
-    /**
-     * Set the committed value directly (used when loading from file).
-     */
     internal fun setCommitted(value: T) {
         committedValue = value
         pendingValue = value
+
+        loadListeners.forEach { it(value) }
     }
 
     /**
@@ -67,23 +56,14 @@ class ConfigEntry<T : Any>(
         }
     }
 
-    /**
-     * Discard the pending value and revert to the committed value.
-     */
     fun discardPending() {
         pendingValue = committedValue
     }
 
-    /**
-     * Reset the pending value to the default.
-     */
     fun resetToDefault() {
         pendingValue = default
     }
 
-    /**
-     * Check if there are unsaved changes.
-     */
     fun hasChanges(): Boolean = pendingValue != committedValue
 
     /**
@@ -97,9 +77,6 @@ class ConfigEntry<T : Any>(
         return ValidationResult.SUCCESS
     }
 
-    /**
-     * Add a constraint to this entry.
-     */
     fun addConstraint(constraint: Constraint<T>) {
         constraints.add(constraint)
     }
@@ -112,7 +89,12 @@ class ConfigEntry<T : Any>(
     }
 
     /**
-     * Get all constraints for this entry.
+     * Add a load listener that is called when the value is loaded from file.
      */
+    fun addLoadListener(listener: (new: T) -> Unit) {
+        loadListeners.add(listener)
+    }
+
+
     fun getConstraints(): List<Constraint<T>> = constraints.toList()
 }

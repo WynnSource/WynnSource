@@ -4,8 +4,8 @@ package fyw.fyi.wynnsource.config.delegate
 
 import fyw.fyi.wynnsource.config.constraint.PredicateConstraint
 import fyw.fyi.wynnsource.config.constraint.RegexConstraint
-import fyw.fyi.wynnsource.data.lang.LangRegistry
-import fyw.fyi.wynnsource.data.lang.Translatable
+import fyw.fyi.wynnsource.datagen.lang.LangRegistry
+import fyw.fyi.wynnsource.datagen.lang.Translatable
 
 /**
  * Extension functions for String config delegates.

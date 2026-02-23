@@ -1,6 +1,6 @@
-package fyw.fyi.wynnsource.data.lang
+package fyw.fyi.wynnsource.datagen.lang
 
-import fyw.fyi.wynnsource.data.lang.LangUtils.toEnUd
+import fyw.fyi.wynnsource.datagen.lang.LangUtils.toEnUd
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 
