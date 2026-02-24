@@ -1,7 +1,6 @@
 package fyw.fyi.wynnsource.module.pool
 
 import com.wynntils.core.components.Models
-import com.wynntils.models.items.WynnItem
 import fyw.fyi.wynnsource.coroutine.WCSCoroutineScope
 import fyw.fyi.wynnsource.data.repository.BaseRepository
 import fyw.fyi.wynnsource.data.transformer.WynntilsTransformer
@@ -37,7 +36,9 @@ object PoolModule : BaseModule() {
         val page = determinePage(inventory, poolType)
         var key = "$poolType:$region:$page"
 
-        val items = extractItemList(inventory, poolType).filterNotNull().map {
+        val items = extractItemList(inventory, poolType).map { item ->
+            Models.Item.getWynnItem(item).get()
+        }.mapNotNull {
             try {
                 WynntilsTransformer.serialize(it)
             } catch (e: Exception) {
@@ -48,7 +49,7 @@ object PoolModule : BaseModule() {
                 )
                 null
             }
-        }.filterNotNull()
+        }
 
         when (poolType) {
             RewardPoolType.Loot -> dataCollection.addEntry(key, items)
@@ -61,8 +62,6 @@ object PoolModule : BaseModule() {
         }
 
         logger.debug("Collected reward pool data for $key with ${items.size} items")
-
-
     }
 
     private const val LOOT_REWARD_START_SLOT = 18
@@ -70,26 +69,26 @@ object PoolModule : BaseModule() {
     private const val NEXT_PAGE_TEXT = "§7Next Page"
     private const val PREVIOUS_PAGE_TEXT = "§7Previous Page"
 
-    private fun extractItemList(inventory: Inventory, poolType: RewardPoolType): List<WynnItem?> {
+    private fun extractItemList(inventory: Inventory, poolType: RewardPoolType): List<ItemStack> {
         return when (poolType) {
             RewardPoolType.Loot -> {
-                (LOOT_REWARD_START_SLOT..<inventory.size()).map {
+                (LOOT_REWARD_START_SLOT..<inventory.size()).mapNotNull {
                     val item = inventory.getStack(it)
                     if (item.isEmpty) {
                         null
                     } else {
-                        Models.Item.getWynnItem(item).get()
+                        item
                     }
                 }
             }
 
             RewardPoolType.Raid -> {
-                (RAID_REWARD_START_SLOT..<inventory.size()).map {
+                (RAID_REWARD_START_SLOT..<inventory.size()).mapNotNull {
                     val item = inventory.getStack(it)
                     if (item.isEmpty) {
                         null
                     } else {
-                        Models.Item.getWynnItem(item).get()
+                        item
                     }
                 }
             }

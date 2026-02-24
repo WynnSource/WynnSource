@@ -9,12 +9,15 @@ abstract class DataCollection<T> {
     }
 
     fun addEntry(entry: DataEntry<T>) {
-        entry.dirty = true
-        if (entries.any { it.key == entry.key }) {
-            entries.replaceAll { if (it.key == entry.key) entry else it }
-        } else {
-            entries.add(entry)
+        val index = entries.indexOfFirst { it.key == entry.key }
+
+        when {
+            index != -1 && entries[index].value == entry.value -> return
+            index != -1 -> entries[index] = entry
+            else -> entries.add(entry)
         }
+
+        entry.dirty = true
     }
 
     val dirty
