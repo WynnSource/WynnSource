@@ -1,4 +1,4 @@
-name: release
+name: pre-release
 on:
   push:
     tags:
@@ -41,8 +41,19 @@ jobs:
         with:
           body_path: CHANGELOG.md
           files: build/libs/*.jar
+          draft: true
+
+      - name: Determine and checkout branch
+        id: determine_branch
+        run: |
+          RAW_BRANCH=$(git branch -r --contains ${{ github.ref_name }} | grep -v HEAD | grep origin | head -n 1)
+          BRANCH_NAME=$(echo $RAW_BRANCH | sed -e 's/^[[:space:]]*origin\///')
+          echo "Found branch: $BRANCH_NAME"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          git checkout $BRANCH_NAME
 
       - name: Commit changelog
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Update changelog
+          commit_message: "chore: Update changelog [skip-ci]"
+          branch: ${{ steps.determine_branch.outputs.branch }}
