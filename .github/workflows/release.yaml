@@ -55,5 +55,5 @@ jobs:
       - name: Commit changelog
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: Update changelog [skip-ci]"
+          commit_message: "chore: Update changelog [skip ci]"
           branch: ${{ steps.determine_branch.outputs.branch }}

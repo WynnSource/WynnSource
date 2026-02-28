@@ -1,8 +1,11 @@
 name: build
 on:
-  - pull_request
-  - push
-  - workflow_call
+  pull_request:
+  workflow_call:
+  push:
+    branches:
+      - '**' # filter on branch to prevent tag pushes from triggering this workflow
+
 
 jobs:
   build:
@@ -13,8 +16,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: validate gradle wrapper
-        uses: gradle/actions/wrapper-validation@v4
+      - name: Determine and checkout branch
+        id: determine_branch
+        run: |
+          RAW_BRANCH=$(git branch -r --contains ${{ github.ref_name }} | grep -v HEAD | grep origin | head -n 1)
+          BRANCH_NAME=$(echo $RAW_BRANCH | sed -e 's/^[[:space:]]*origin\///')
+          echo "Found branch: $BRANCH_NAME"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          git checkout $BRANCH_NAME
 
       - name: setup jdk
         uses: actions/setup-java@v4
@@ -22,13 +31,15 @@ jobs:
           java-version: '21'
           distribution: 'microsoft'
 
-      - name: make gradle wrapper executable
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: build
-        run: ./gradlew build
+        run: |
+          chmod +x gradlew
+          ./gradlew build
 
-      - name: capture build artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts
