@@ -19,9 +19,23 @@ plugins {
 
 scmVersion {
     tag {
-        prefix.set("")
+        prefix.set("v")
         versionSeparator.set("")
         initialVersion { _, _ -> "0.1.0" }
+    }
+    versionCreator { version, position ->
+        val branchName = position.branch?.split("/")?.getOrNull(1) ?: "unknown"
+        "$branchName-$version"
+    }
+    snapshotCreator { _, position ->
+        val isDirty = !position.isClean
+        val suffix = "-${position.shortRevision}"
+
+        if (isDirty) {
+            "$suffix-UNCOMMITTED"
+        } else {
+            suffix
+        }
     }
     checks {
         uncommittedChanges.set(false)
@@ -195,8 +209,6 @@ tasks.jar {
         rename { "${it}_${inputs.properties["archivesName"]}" }
     }
 }
-
-
 
 tasks.named<Jar>("sourcesJar") {
     // Prevent Gradle from erroring implicit use
