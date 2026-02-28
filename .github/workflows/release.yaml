@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   call-build:
-    uses: .github/workflows/build.yaml
+    uses: ./.github/workflows/build.yaml
 
   create-release:
     needs: call-build
