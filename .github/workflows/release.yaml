@@ -8,8 +8,29 @@ permissions:
   contents: write
 
 jobs:
+  determine-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.determine_branch.outputs.branch }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine and checkout branch
+        id: determine_branch
+        run: |
+          RAW_BRANCH=$(git branch -r --contains ${{ github.ref_name }} | grep -v HEAD | grep origin | head -n 1)
+          BRANCH_NAME=$(echo $RAW_BRANCH | sed -e 's/^[[:space:]]*origin\///')
+          echo "Found branch: $BRANCH_NAME"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
   call-build:
+    needs: determine-branch
     uses: ./.github/workflows/build.yaml
+    with:
+      branch: ${{ needs.determine-branch.outputs.branch }}
 
   create-release:
     needs: call-build
@@ -43,17 +64,9 @@ jobs:
           files: build/libs/*.jar
           draft: true
 
-      - name: Determine and checkout branch
-        id: determine_branch
-        run: |
-          RAW_BRANCH=$(git branch -r --contains ${{ github.ref_name }} | grep -v HEAD | grep origin | head -n 1)
-          BRANCH_NAME=$(echo $RAW_BRANCH | sed -e 's/^[[:space:]]*origin\///')
-          echo "Found branch: $BRANCH_NAME"
-          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          git checkout $BRANCH_NAME
-
       - name: Commit changelog
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: Update changelog [skip ci]"
-          branch: ${{ steps.determine_branch.outputs.branch }}
+          branch: ${{ needs.determine_branch.outputs.branch }}
+          commit_author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
