@@ -65,6 +65,9 @@ jobs:
           files: build/libs/*.jar
           draft: true
 
+      - name: Checkout Branch for Changelog Commit
+        run: git checkout ${{ needs.determine_branch.outputs.branch }}
+
       - name: Commit changelog
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
