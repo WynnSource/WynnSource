@@ -29,12 +29,12 @@ scmVersion {
     }
     snapshotCreator { _, position ->
         val isDirty = !position.isClean
-        val suffix = "-${position.shortRevision}"
+        val revision = "-pre-${position.shortRevision}"
 
         if (isDirty) {
-            "$suffix-UNCOMMITTED"
+            "$revision-UNCOMMITTED"
         } else {
-            suffix
+            revision
         }
     }
     checks {
