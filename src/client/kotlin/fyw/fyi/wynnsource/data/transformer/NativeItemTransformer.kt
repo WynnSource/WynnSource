@@ -1,6 +1,8 @@
 package fyw.fyi.wynnsource.data.transformer
 
 import com.wynntils.core.components.Models
+import com.wynntils.models.spells.type.SpellType
+import com.wynntils.models.stats.type.StatType
 import fyw.fyi.wynnsource.schema.WynnSourceItemOuterClass
 import fyw.fyi.wynnsource.schema.common.Components
 import fyw.fyi.wynnsource.schema.common.Enums
@@ -116,18 +118,18 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
                 majorId = parsedMajorId.joinToString(" ")
 
                 unidentified = unidentifiedGear {
-                    identifications += parsedIdentifications
+                    identifications += parsedIdentifications.ifEmpty { error("Identifications not found in lore") }
                 }
 
                 if (finalGearType.isWeapon()) {
                     weaponStats = weaponStats {
                         attackSpeed = parsedAttackSpeed ?: error("AttackSpeed not found in lore")
-                        damages += parsedDamages
+                        damages += parsedDamages.ifEmpty { error("Damage not found in lore") }
                     }
                 } else {
                     armorStats = armorStats {
                         health = parsedHealth ?: error("Health not found in lore")
-                        defenses += parsedDefenses
+                        defenses += parsedDefenses.ifEmpty { error("Defense not found in lore") }
                     }
                 }
             }
@@ -147,7 +149,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     private val LEVEL_PATTERN = Pattern.compile("^.*?Combat Level.*?(\\d+)$")
     private val HEALTH_PATTERN = Pattern.compile("^.[+-]([\\d,]+) Health$")
     private val ID_PATTERN = Pattern.compile(
-        "^([\\w\\s]+).*?([+-][\\d,]+)(?:/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(?:/\\ds|\\stier|%)?)?$"
+        "^([\\w\\s]+).*?([+-][\\d,]+)(?:/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(/\\ds|\\stier|%)?)?$"
     )
     private val ATTACK_SPEED_PATTERN = Pattern.compile("^.*?\uE007\\s([\\w\\s]+) \\(.*$")
 
@@ -226,10 +228,60 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         val idDisplayName = idMatch.group(1)
         val idValue = idMatch.group(2) // e.g. "+10", "-1,000"
         val idValue2 = idMatch.group(3) // Optional second value for range-based stats.
+        val unit = idMatch.group(4) ?: ""
 
-        val idKey = Models.Stat.allStatTypes.firstOrNull {
+        var idStats: StatType? = null
+
+        if (idDisplayName == "Combat Experience") {
+            idStats = Models.Stat.allStatTypes.firstOrNull {
+                it.apiName == "xpBonus"
+            }
+        }
+
+        if (idDisplayName.endsWith(" Cost")) {
+            val spellType = SpellType.fromName(idDisplayName)
+            val genericName = when (spellType?.spellNumber) {
+                1 -> "1st"
+                2 -> "2nd"
+                3 -> "3rd"
+                4 -> "4th"
+                else -> null
+            }
+
+            if (spellType != null) {
+                idStats = if ("%" in unit) {
+                    Models.Stat.allStatTypes.firstOrNull {
+                        it.apiName == "${genericName}SpellCost"
+                    }
+                } else {
+                    Models.Stat.allStatTypes.firstOrNull {
+                        it.apiName == "raw${genericName}SpellCost"
+                    }
+                }
+            }
+        }
+
+        idStats = idStats ?: Models.Stat.allStatTypes.firstOrNull {
             it.displayName == idDisplayName
         } ?: return null
+
+        if ("damage" in idStats.displayName.lowercase()) {
+            if ("%" !in unit) {
+                // For damage withouth percentage, we take it as rawxxxx
+                idStats = Models.Stat.allStatTypes.firstOrNull {
+                    it.apiName == "raw${idStats.apiName[0].uppercase()}${idStats.apiName.substring(1)}"
+                } ?: return null
+            }
+        }
+
+        if (idDisplayName == "Health Regen") {
+            if ("%" !in unit) {
+                // For health regen without percentage, we take it as raw health regen
+                idStats = Models.Stat.allStatTypes.firstOrNull {
+                    it.apiName == "healthRegenRaw"
+                } ?: return null
+            }
+        }
 
         val base = if (idValue2 == null || idValue2.isEmpty()) {
             idValue.replace(",", "").replace("%", "").toIntOrNull() ?: 0
@@ -242,7 +294,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
             // The current algorithm might not be perfect, the result may vary in 1-2.
             if (id1 == id2) {
                 id1
-            } else if (id1 < 0 != idKey.calculateAsInverted()) {
+            } else if (id1 < 0 != idStats.calculateAsInverted()) {
                 // 1.3 - 0.7
                 ((id1 + id2) / 2.0).roundToInt()
             } else {
@@ -252,7 +304,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         }
 
         return identification {
-            id = IdentificationMappingRepo.fromApiName(idKey.apiName)?.id
+            id = IdentificationMappingRepo.fromApiName(idStats.apiName)?.id
                 ?: return null
             baseVal = base
         }
