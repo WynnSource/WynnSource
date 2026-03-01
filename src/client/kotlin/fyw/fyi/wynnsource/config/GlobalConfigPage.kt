@@ -50,7 +50,7 @@ object GlobalConfigPage : ConfigPage(
                 )
             )
 
-        var apiEndpoint by config(default = "")
+        var apiEndpoint by config(default = "https://wcs-beta.fyw.fyi")
             .name(translatable("config.reporting.endpoint", "API 地址", "API Endpoint"))
             .description(
                 translatable(
