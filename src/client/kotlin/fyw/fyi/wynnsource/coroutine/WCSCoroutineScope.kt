@@ -23,7 +23,7 @@ object WCSCoroutineScope {
     private val mainDispatcher = Executors.newSingleThreadExecutor(namedThreadFactory("WCS-Main"))
         .asCoroutineDispatcher()
 
-    private val ioDispatcher = Executors.newCachedThreadPool(namedThreadFactory("WCS-IO"))
+    private val ioDispatcher = Executors.newSingleThreadExecutor(namedThreadFactory("WCS-IO"))
         .asCoroutineDispatcher()
 
     val Main = CoroutineScope(

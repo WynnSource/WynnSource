@@ -3,6 +3,7 @@ package fyw.fyi.wynnsource.config.core
 import fyw.fyi.wynnsource.config.delegate.ConfigDelegate
 import fyw.fyi.wynnsource.datagen.lang.LangRegistry
 import fyw.fyi.wynnsource.datagen.lang.Translatable
+import io.wispforest.owo.ui.core.UIComponent
 
 /**
  * Represents a group of related config entries.
@@ -13,7 +14,7 @@ import fyw.fyi.wynnsource.datagen.lang.Translatable
  */
 abstract class ConfigGroup(
     val name: Translatable,
-    var expanded: Boolean = true
+    var expanded: Boolean = true,
 ) {
     internal val entries = mutableListOf<ConfigEntry<*>>()
 
@@ -32,6 +33,9 @@ abstract class ConfigGroup(
         entries.add(entry)
         return ConfigDelegate(entry)
     }
+
+    open fun preGroup(): UIComponent? = null
+    open fun postGroup(): UIComponent? = null
 
     protected fun translatable(key: String, cn: String, en: String): Translatable {
         return LangRegistry.translatable(key, cn, en)

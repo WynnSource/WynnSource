@@ -9,10 +9,10 @@ abstract class BaseModule {
     abstract val name: String
     abstract val config: ConfigPage?
     abstract val dataCollection: DataCollection<*>?
-    abstract val repo: List<BaseRepository<*>>
+    open val repo: MutableList<BaseRepository<*>> = mutableListOf()
 
     abstract fun subscribeEvents()
 
     val logger: org.slf4j.Logger
-        get() = LoggerFactory.getLogger("WynnSource-Module-$name")
+        get() = LoggerFactory.getLogger("WynnSource.Module-$name")
 }

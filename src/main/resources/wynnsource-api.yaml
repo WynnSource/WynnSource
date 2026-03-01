@@ -441,8 +441,10 @@ paths:
         - pool
       summary: Force Recalculate Pool Consensus
       description: >-
-        Force recalculate pool consensus. This is useful for admins to fix any
-        issues with the consensus calculation.
+        Force recalculate pool consensus.
+
+        This is useful for admins to fix any issues with the consensus
+        calculation.
 
 
         🛡️ Required Permission(s): `pool.recalc`
@@ -462,6 +464,137 @@ paths:
                 $ref: "#/components/schemas/ValidationErrorResponse"
       security:
         - APIKeyHeader: []
+  /api/v2/beta/items:
+    get:
+      tags:
+        - beta
+      summary: List Beta Items
+      description: |-
+        List all items in the beta list.
+
+        ⌛ This response is cached for `5 minutes`.
+
+        ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
+      operationId: list_beta_items
+      parameters:
+        - name: item_return_type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ItemReturnType"
+            default: b64
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_BetaItemListResponse_"
+          headers:
+            X-Cache:
+              schema:
+                type: string
+                enum:
+                  - HIT
+                  - MISS
+              description: Cache status
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
+    post:
+      tags:
+        - beta
+      summary: Submit new Beta Item
+      description: |-
+        Submit new items to be added to the beta list.
+
+        ⏱️ Rate Limited: `30` requests per `1 minute`  based on IP.
+      operationId: submit_beta_item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewItemSubmission"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmptyResponse"
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
   /api/v2/test:
     get:
       tags:
@@ -604,6 +737,68 @@ paths:
                 type: integer
               description: Seconds until you can retry
           description: Too Many Requests
+  /api/v2/item/random:
+    get:
+      tags:
+        - misc
+      summary: Get Random Item
+      description: |-
+        Get a random item for testing purposes.
+
+        ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
+      operationId: get_random_item
+      parameters:
+        - name: item_return_type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ItemReturnType"
+            default: b64
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_RandomItemResponse_"
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
   /:
     get:
       summary: Read Root
@@ -617,6 +812,27 @@ paths:
                 $ref: "#/components/schemas/StatusResponse"
 components:
   schemas:
+    BetaItemListResponse:
+      properties:
+        items:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - items:
+                additionalProperties: true
+                type: object
+              type: array
+          title: Items
+          description: List of items in the beta list, format depends on item_return_type
+            query parameter
+          examples:
+            - - aXRlbV9kYXRhXzE=
+              - aXRlbV9kYXRhXzI=
+      type: object
+      required:
+        - items
+      title: BetaItemListResponse
     Body_add_permissions_to_user:
       properties:
         token_str:
@@ -767,6 +983,30 @@ components:
         - identification
         - shiny
       title: MappingType
+    NewItemSubmission:
+      properties:
+        client_timestamp:
+          type: string
+          format: date-time
+          title: Client Timestamp
+        mod_version:
+          type: string
+          title: Mod Version
+        items:
+          items:
+            type: string
+          type: array
+          title: Items
+          description: List of base64-encoded protobuf bytes for items
+          examples:
+            - - aXRlbV9kYXRhXzE=
+              - aXRlbV9kYXRhXzI=
+      type: object
+      required:
+        - client_timestamp
+        - mod_version
+        - items
+      title: NewItemSubmission
     PageConsensus:
       properties:
         page:
@@ -806,6 +1046,14 @@ components:
           type: string
           title: Region
           description: Region name, must be one of the valid regions for the pool type
+        rotation_start:
+          type: string
+          format: date-time
+          title: Rotation Start
+        rotation_end:
+          type: string
+          format: date-time
+          title: Rotation End
         page_consensus:
           items:
             $ref: "#/components/schemas/PageConsensus"
@@ -815,6 +1063,8 @@ components:
       required:
         - pool_type
         - region
+        - rotation_start
+        - rotation_end
         - page_consensus
       title: PoolConsensusResponse
     PoolSubmissionSchema:
@@ -868,6 +1118,19 @@ components:
         - NOL
         - NOTG
       title: RaidRegion
+    RandomItemResponse:
+      properties:
+        item:
+          anyOf:
+            - type: string
+            - additionalProperties: true
+              type: object
+          title: Item
+      type: object
+      required:
+        - item
+      title: RandomItemResponse
+      description: Response model for random item endpoint.
     StatusData:
       properties:
         status:
@@ -996,6 +1259,26 @@ components:
         - data
       title: ValidationErrorResponse
       description: Validation error response model.
+    WCSResponse_BetaItemListResponse_:
+      properties:
+        data:
+          $ref: "#/components/schemas/BetaItemListResponse"
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: WCSResponse[BetaItemListResponse]
     WCSResponse_PoolConsensusResponse_:
       properties:
         data:
@@ -1016,6 +1299,26 @@ components:
       required:
         - data
       title: WCSResponse[PoolConsensusResponse]
+    WCSResponse_RandomItemResponse_:
+      properties:
+        data:
+          $ref: "#/components/schemas/RandomItemResponse"
+        code:
+          $ref: "#/components/schemas/ErrorCodes"
+          default: OK
+        timestamp:
+          type: integer
+          title: Timestamp
+          examples:
+            - 1767225600
+        version:
+          type: integer
+          title: Version
+          default: 2
+      type: object
+      required:
+        - data
+      title: WCSResponse[RandomItemResponse]
     WCSResponse_UserInfoResponse_:
       properties:
         data:
@@ -1092,4 +1395,5 @@ x-tagGroups:
       - management
       - pool
       - market
+      - beta
       - misc

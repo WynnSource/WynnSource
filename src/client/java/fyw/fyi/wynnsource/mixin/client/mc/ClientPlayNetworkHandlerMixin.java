@@ -1,4 +1,4 @@
-package fyw.fyi.wynnsource.mixin.client;
+package fyw.fyi.wynnsource.mixin.client.mc;
 
 import fyw.fyi.wynnsource.event.EventBus;
 import fyw.fyi.wynnsource.event.RemoteContainerScreenEvent;

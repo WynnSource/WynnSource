@@ -1,6 +1,11 @@
 package fyw.fyi.wynnsource.utils
 
 import fyw.fyi.wynnsource.config.GlobalConfigPage
+import fyw.fyi.wynnsource.server.apis.BetaApi
+import fyw.fyi.wynnsource.server.apis.ManagementApi
+import fyw.fyi.wynnsource.server.apis.MiscApi
+import fyw.fyi.wynnsource.server.apis.PoolApi
+import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.api.createClientPlugin
@@ -46,4 +51,20 @@ object NetUtils {
         }
     }
 
+    val managementClient = ManagementApi(baseUrl, sharedEngine, sharedConfig)
+    val poolClient = PoolApi(baseUrl, sharedEngine, sharedConfig)
+    val betaClient = BetaApi(baseUrl, sharedEngine, sharedConfig)
+    val miscClient = MiscApi(baseUrl, sharedEngine, sharedConfig)
+
+    val httpClient = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                }
+            )
+        }
+    }
 }

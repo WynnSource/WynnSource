@@ -31,7 +31,7 @@ shadow = "9.3.1"
 
 # Other Libraries
 mod-menu = "17.0.0-beta.2"
-wynntils = "v4.0.1-fabric"
+wynntils = "v4.1.0-beta.3-fabric"
 owo-lib = "0.13.0+1.21.11"
 
 

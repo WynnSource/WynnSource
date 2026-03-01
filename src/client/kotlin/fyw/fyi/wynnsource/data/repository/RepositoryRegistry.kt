@@ -1,6 +1,8 @@
 package fyw.fyi.wynnsource.data.repository
 
+import fyw.fyi.wynnsource.WynnSourceClient
 import fyw.fyi.wynnsource.data.transformer.IdentificationMappingRepo
+import fyw.fyi.wynnsource.data.transformer.ItemDatabase
 import fyw.fyi.wynnsource.data.transformer.ShinyMappingRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -11,6 +13,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
+@Suppress("UNUSED")
 object RepositoryRegistry {
     private val logger = LoggerFactory.getLogger("WynnSource-RepoManager")
     private val repositories = mutableListOf<BaseRepository<*>>()
@@ -19,6 +22,7 @@ object RepositoryRegistry {
     init {
         register(IdentificationMappingRepo)
         register(ShinyMappingRepo)
+        register(ItemDatabase)
     }
 
     fun register(repository: BaseRepository<*>) {
@@ -33,23 +37,24 @@ object RepositoryRegistry {
     fun get(id: String): BaseRepository<*>? = repositories.find { it.id == id }
 
     fun start(scope: CoroutineScope) {
+        if (WynnSourceClient.isDataGenMode) return
         refreshJob = scope.launch {
             while (this.isActive) {
                 refreshAll(this)
-                delay(60 * 60 * 1000L) // Auto-refresh only once per hour.
+                delay(60 * 1000L) // Auto-refresh check once per minute.
             }
         }
     }
 
     suspend fun refreshAll(scope: CoroutineScope) {
-        logger.info("Checking updates for {} repositories...", repositories.size)
+        logger.debug("Checking updates for {} repositories...", repositories.size)
         repositories.map { repo ->
             scope.async {
                 repo.id to repo.refresh()
             }
         }.awaitAll()
 
-        logger.info("Repository update check complete.")
+        logger.debug("Repository update check complete.")
     }
 
     suspend fun forceRefreshAll(scope: CoroutineScope) {
@@ -62,8 +67,7 @@ object RepositoryRegistry {
     }
 
     suspend fun forceRefresh(id: String) {
-        val repo = repositories.find { it.id == id }
-        repo?.forceRefresh()
+        get(id)?.forceRefresh()
     }
 
     fun invalidateAll() {

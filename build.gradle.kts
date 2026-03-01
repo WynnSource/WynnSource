@@ -257,11 +257,13 @@ openApiGenerate {
         mapOf(
             "AnyType" to "JsonElement",
             "java.time.OffsetDateTime" to "kotlin.time.Instant",
+            "Items" to "JsonArray",
         )
     )
     importMappings.set(
         mapOf(
             "JsonElement" to "kotlinx.serialization.json.JsonElement",
+            "JsonArray" to "kotlinx.serialization.json.JsonArray",
         )
     )
 }

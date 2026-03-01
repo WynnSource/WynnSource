@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "fyw.fyw.wynnsource.mixin",
+  "package": "fyw.fyi.wynnsource.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
   ],

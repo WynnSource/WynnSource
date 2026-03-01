@@ -5,7 +5,6 @@ import fyw.fyi.wynnsource.config.GlobalConfigPage
 import fyw.fyi.wynnsource.data.DataCollection
 import fyw.fyi.wynnsource.data.DataEntry
 import fyw.fyi.wynnsource.schema.WynnSourceItemOuterClass
-import fyw.fyi.wynnsource.server.apis.PoolApi
 import fyw.fyi.wynnsource.server.models.PoolSubmissionSchema
 import fyw.fyi.wynnsource.server.models.PoolType
 import fyw.fyi.wynnsource.utils.NetUtils
@@ -17,20 +16,13 @@ object PoolDataCollection : DataCollection<List<WynnSourceItemOuterClass.WynnSou
 
     val b64encoder: Base64.Encoder = Base64.getEncoder()
 
-    private val poolClient = PoolApi(
-        NetUtils.baseUrl,
-        NetUtils.sharedEngine,
-        NetUtils.sharedConfig
-    )
-
     override suspend fun submit() {
-        poolClient.setApiKey(GlobalConfigPage.reporting.apiKey)
-        poolClient.submitPoolData(
+        NetUtils.poolClient.setApiKey(GlobalConfigPage.reporting.apiKey)
+        NetUtils.poolClient.submitPoolData(
             dirtyEntries.map {
                 entryToSchema(it)
             }
         )
-        entries.forEach { it.dirty = false }
     }
 
     fun entryToSchema(entry: DataEntry<List<WynnSourceItemOuterClass.WynnSourceItem>>): PoolSubmissionSchema {

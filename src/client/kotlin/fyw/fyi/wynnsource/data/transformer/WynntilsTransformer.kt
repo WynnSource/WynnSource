@@ -598,7 +598,7 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
 
     private fun getItemStackName(item: WynnItem): String {
         val itemStack: ItemStack? = item.data.get("itemstack")
-        return itemStack?.customName?.string ?: itemStack?.name?.string ?: ""
+        return itemStack?.customName?.string ?: itemStack?.name?.string.orEmpty()
     }
 
     private fun getItemStackCount(item: WynnItem): Int {
@@ -866,7 +866,7 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
         return when (this) {
             MaterialProfile.ResourceType.INGOT -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_INGOT
             MaterialProfile.ResourceType.GEM -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_GEM
-            MaterialProfile.ResourceType.WOOD -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_WOOD
+            MaterialProfile.ResourceType.PLANK -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_WOOD
             MaterialProfile.ResourceType.PAPER -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_PAPER
             MaterialProfile.ResourceType.STRING -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_STRING
             MaterialProfile.ResourceType.GRAINS -> MaterialOuterClass.MaterialType.MATERIAL_TYPE_GRAIN

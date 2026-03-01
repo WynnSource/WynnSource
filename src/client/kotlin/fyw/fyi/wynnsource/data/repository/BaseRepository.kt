@@ -51,6 +51,7 @@ abstract class BaseRepository<T : Any> {
 
         if (!shouldUpdate(cached)) {
             logger.debug("Cache for '{}' is still valid, skipping refresh", id)
+            return
         }
 
         try {

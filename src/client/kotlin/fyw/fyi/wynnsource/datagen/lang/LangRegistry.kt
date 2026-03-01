@@ -13,6 +13,10 @@ object LangRegistry {
         "en_ud" to Translatable::en_ud,
     )
 
+    fun nonRegisteredTranslatable(key: String): Translatable {
+        return Translatable(key, key, key)
+    }
+
     fun translatable(key: String, cn: String, en: String): Translatable {
         val translatable = Translatable(key, cn.trimAllLineStart(), en.trimAllLineStart())
         LANG[key] = translatable

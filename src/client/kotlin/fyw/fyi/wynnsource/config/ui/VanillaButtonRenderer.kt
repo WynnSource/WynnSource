@@ -1,10 +1,13 @@
 package fyw.fyi.wynnsource.config.ui
 
 import io.wispforest.owo.ui.component.ButtonComponent
+import io.wispforest.owo.ui.component.UIComponents
 import net.minecraft.client.gl.RenderPipelines
 import net.minecraft.client.gui.screen.ButtonTextures
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.ColorHelper
+import java.util.function.Consumer
 
 object VanillaButtonRenderer {
     private val TEXTURES: ButtonTextures = ButtonTextures(
@@ -27,5 +30,9 @@ object VanillaButtonRenderer {
             button.height,
             ColorHelper.getWhite(button.alpha)
         )
+    }
+
+    fun vanillaButton(message: Text, onPress: Consumer<ButtonComponent>): ButtonComponent {
+        return UIComponents.button(message, onPress).renderer(FIXED_VANILLA)
     }
 }

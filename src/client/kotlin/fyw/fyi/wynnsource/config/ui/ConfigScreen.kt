@@ -1,5 +1,6 @@
 package fyw.fyi.wynnsource.config.ui
 
+import fyw.fyi.wynnsource.WynnSource
 import fyw.fyi.wynnsource.config.constraint.RangeConstraint
 import fyw.fyi.wynnsource.config.core.ConfigEntry
 import fyw.fyi.wynnsource.config.core.ConfigGroup
@@ -47,10 +48,11 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
     private val tabButtons = mutableMapOf<String, ButtonComponent>()
 
     /**
-     * A vanilla-styled button for the config screen.
+     * A helper function to create a button with vanilla styling.
+     * This ensures that our buttons will fit texturepack.
      */
-    private fun vanillaButton(text: Text, onPress: Consumer<ButtonComponent>): ButtonComponent {
-        return UIComponents.button(text, onPress).renderer(VanillaButtonRenderer.FIXED_VANILLA)
+    private fun vanillaButton(message: Text, onPress: Consumer<ButtonComponent>): ButtonComponent {
+        return VanillaButtonRenderer.vanillaButton(message, onPress)
     }
 
     companion object {
@@ -219,15 +221,21 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
         panel.clearChildren()
 
         currentPage?.let { page ->
-            // Render ungrouped entries first
+            // Pre-page component
+            page.prePage()?.let { panel.child(it) }
+
+            // Ungrouped entries go first
             page.getUngroupedEntries().forEach { entry ->
                 panel.child(createEntryWidget(entry))
             }
 
-            // Render groups
+            // Grouped entries
             page.getAllGroups().forEach { group ->
                 panel.child(createGroupComponent(group))
             }
+
+            // Post-page component
+            page.postPage()?.let { panel.child(it) }
         }
     }
 
@@ -239,9 +247,16 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
             group.expanded
         )
 
+        // Pre-group component
+        group.preGroup()?.let { collapsible.child(it) }
+
+        // Add entries in this group
         group.getEntries().forEach { entry ->
             collapsible.child(createEntryWidget(entry))
         }
+
+        // Post-group component
+        group.postGroup()?.let { collapsible.child(it) }
 
         // Update group expanded state when toggled
         collapsible.onToggled().subscribe { expanded ->
@@ -253,21 +268,46 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
 
     @Suppress("UNCHECKED_CAST")
     private fun createEntryWidget(entry: ConfigEntry<*>): UIComponent {
-        return when (entry.type) {
-            Boolean::class -> createBooleanWidget(entry as ConfigEntry<Boolean>)
-            Int::class -> createIntWidget(entry as ConfigEntry<Int>)
-            Long::class -> createLongWidget(entry as ConfigEntry<Long>)
-            Float::class -> createFloatWidget(entry as ConfigEntry<Float>)
-            Double::class -> createDoubleWidget(entry as ConfigEntry<Double>)
-            String::class -> createStringWidget(entry as ConfigEntry<String>)
-            else -> {
-                if (entry.type.java.isEnum) {
-                    createEnumWidget(entry)
-                } else {
-                    UIComponents.label(Text.literal("Unsupported: ${entry.key}"))
+        val container = UIContainers.verticalFlow(Sizing.fill(100), Sizing.content())
+        runCatching {
+            container.apply {
+                (entry.preEntryComponent as? ConfigEntryComponentBuilder<Any>)?.let { builder ->
+                    child(builder.invoke(entry as ConfigEntry<Any>))
+                }
+
+                child(
+                    if (entry.entryComponent != null) {
+                        (entry.entryComponent as ConfigEntryComponentBuilder<Any>).invoke(entry as ConfigEntry<Any>)
+                    } else {
+                        when (entry.type) {
+                            Boolean::class -> createBooleanWidget(entry as ConfigEntry<Boolean>)
+                            Int::class -> createIntWidget(entry as ConfigEntry<Int>)
+                            Long::class -> createLongWidget(entry as ConfigEntry<Long>)
+                            Float::class -> createFloatWidget(entry as ConfigEntry<Float>)
+                            Double::class -> createDoubleWidget(entry as ConfigEntry<Double>)
+                            String::class -> createStringWidget(entry as ConfigEntry<String>)
+                            else -> {
+                                if (entry.type.java.isEnum) {
+                                    createEnumWidget(entry)
+                                } else {
+                                    UIComponents.label(Text.literal("Unsupported: ${entry.key}"))
+                                }
+                            }
+                        }
+                    }
+                )
+
+                (entry.postEntryComponent as? ConfigEntryComponentBuilder<Any>)?.let { builder ->
+                    child(builder.invoke(entry as ConfigEntry<Any>))
                 }
             }
+        }.onFailure {
+            WynnSource.logger.error(
+                "Failed to create widget for config entry ${entry.key} of type ${entry.type}",
+                it
+            )
         }
+        return container
     }
 
     // ==================== Widget Creation ====================

@@ -4,6 +4,7 @@ import fyw.fyi.wynnsource.config.constraint.ValidationResult
 import fyw.fyi.wynnsource.config.delegate.ConfigDelegate
 import fyw.fyi.wynnsource.datagen.lang.LangRegistry
 import fyw.fyi.wynnsource.datagen.lang.Translatable
+import io.wispforest.owo.ui.core.UIComponent
 import net.minecraft.item.Item
 
 /**
@@ -14,10 +15,11 @@ import net.minecraft.item.Item
  * @param name Display name of the config page
  * @param icon Optional item icon to display in the tab
  */
+@Suppress("UNUSED")
 abstract class ConfigPage(
     val id: String,
     val name: Translatable,
-    val icon: Item? = null
+    val icon: Item? = null,
 ) {
     // Entries not in any group
     @PublishedApi
@@ -71,6 +73,9 @@ abstract class ConfigPage(
         groups.add(group)
         return group
     }
+
+    open fun prePage(): UIComponent? = null
+    open fun postPage(): UIComponent? = null
 
     /**
      * Get all config entries, including those in groups.

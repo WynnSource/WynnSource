@@ -2,6 +2,7 @@ package fyw.fyi.wynnsource.config.core
 
 import fyw.fyi.wynnsource.config.constraint.Constraint
 import fyw.fyi.wynnsource.config.constraint.ValidationResult
+import fyw.fyi.wynnsource.config.ui.ConfigEntryComponentBuilder
 import fyw.fyi.wynnsource.datagen.lang.Translatable
 import kotlin.reflect.KClass
 
@@ -14,12 +15,16 @@ import kotlin.reflect.KClass
  * @param name The display name (for UI)
  * @param description The description/tooltip (for UI)
  */
+@Suppress("UNUSED")
 class ConfigEntry<T : Any>(
     var key: String,
     val default: T,
     val type: KClass<T>,
     var name: Translatable? = null,
-    var description: Translatable? = null
+    var description: Translatable? = null,
+    var preEntryComponent: ConfigEntryComponentBuilder<T>? = null,
+    var postEntryComponent: ConfigEntryComponentBuilder<T>? = null,
+    var entryComponent: ConfigEntryComponentBuilder<T>? = null,
 ) {
     internal val constraints = mutableListOf<Constraint<T>>()
     internal val changeListeners = mutableListOf<(old: T, new: T) -> Unit>()
@@ -94,7 +99,6 @@ class ConfigEntry<T : Any>(
     fun addLoadListener(listener: (new: T) -> Unit) {
         loadListeners.add(listener)
     }
-
 
     fun getConstraints(): List<Constraint<T>> = constraints.toList()
 }

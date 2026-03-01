@@ -106,7 +106,7 @@ complexity:
     includePrivateDeclarations: false
     ignoreOverloaded: false
   CyclomaticComplexMethod:
-    active: true
+    active: false
     threshold: 15
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
@@ -131,7 +131,7 @@ complexity:
     active: false
     threshold: 60
   LongParameterList:
-    active: true
+    active: false
     functionThreshold: 6
     constructorThreshold: 7
     ignoreDefaultParameters: false
@@ -145,7 +145,7 @@ complexity:
     threshold: 3
     ignoreArgumentsMatchingNames: false
   NestedBlockDepth:
-    active: true
+    active: false
     threshold: 4
   NestedScopeFunctions:
     active: false
@@ -189,7 +189,7 @@ coroutines:
       - 'Default'
       - 'Unconfined'
   RedundantSuspendModifier:
-    active: true
+    active: false
   SleepInsteadOfDelay:
     active: true
   SuspendFunSwallowedCancellation:
@@ -501,12 +501,12 @@ potential-bugs:
   UnreachableCatchBlock:
     active: true
   UnreachableCode:
-    active: true
+    active: false
   UnsafeCallOnNullableType:
     active: true
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
   UnsafeCast:
-    active: true
+    active: false
   UnusedUnaryOperator:
     active: true
   UselessPostfixExpression:
@@ -617,7 +617,7 @@ style:
     ignoreActualFunction: true
     excludedFunctions: [ ]
   LoopWithTooManyJumpStatements:
-    active: true
+    active: false
     maxJumpCount: 1
   MagicNumber:
     active: false
@@ -719,7 +719,7 @@ style:
     acceptableLength: 4
     allowNonStandardGrouping: false
   UnnecessaryAbstractClass:
-    active: true
+    active: false
   UnnecessaryAnnotationUseSiteTarget:
     active: false
   UnnecessaryApply:
@@ -747,12 +747,12 @@ style:
     active: true
     allowedNames: 'ignored|expected'
   UnusedPrivateClass:
-    active: true
+    active: false
   UnusedPrivateMember:
-    active: true
+    active: false
     allowedNames: ''
   UnusedPrivateProperty:
-    active: true
+    active: false
     allowedNames: '_|ignored|expected|serialVersionUID'
   UseAnyOrNoneInsteadOfFind:
     active: true

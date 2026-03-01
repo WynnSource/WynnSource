@@ -6,7 +6,7 @@ object LangUtils {
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_[]{};':\",.<>/?§+|= "
             .zip("ⱯᗺƆᗡƎℲ⅁HIՐʞꞀWNOԀΌᴚS⟘∩ᴧMX⅄Zɐqɔpǝɟᵷɥᴉɾʞꞁɯuodbɹsʇnʌʍxʎz⥝ᘔƐᔭ59Ɫ860¡@#$%^⅋*)(-‾][}{؛,:„'˙></¿§+|= ")
             .toMap()
-    
+
     fun String.toEnUd(): String = this.map { map[it] ?: it }.joinToString("")
 
     fun String.trimAllLineStart(): String = this.lines().joinToString("\n") { it.trimStart() }

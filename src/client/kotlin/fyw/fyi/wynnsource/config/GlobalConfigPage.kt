@@ -4,8 +4,19 @@ import fyw.fyi.wynnsource.config.core.ConfigGroup
 import fyw.fyi.wynnsource.config.core.ConfigPage
 import fyw.fyi.wynnsource.config.delegate.range
 import fyw.fyi.wynnsource.config.delegate.url
+import fyw.fyi.wynnsource.config.ui.VanillaButtonRenderer
+import fyw.fyi.wynnsource.coroutine.WCSCoroutineScope
 import fyw.fyi.wynnsource.datagen.lang.LangRegistry
+import fyw.fyi.wynnsource.utils.HashUtils
 import fyw.fyi.wynnsource.utils.NetUtils
+import io.wispforest.owo.ui.component.UIComponents
+import io.wispforest.owo.ui.container.UIContainers
+import io.wispforest.owo.ui.core.Color
+import io.wispforest.owo.ui.core.Insets
+import io.wispforest.owo.ui.core.Sizing
+import io.wispforest.owo.ui.core.VerticalAlignment
+import kotlinx.coroutines.launch
+import net.minecraft.client.MinecraftClient
 
 @Suppress("unused")
 object GlobalConfigPage : ConfigPage(
@@ -65,7 +76,41 @@ object GlobalConfigPage : ConfigPage(
                     "用于身份验证的 API 密钥",
                     "API key for authentication"
                 )
-            )
+            ).postEntryComponent { entry ->
+                UIContainers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+                    gap(2)
+                    verticalAlignment(VerticalAlignment.CENTER)
+
+                    child(
+                        UIComponents.label(
+                            registerText.toComponent()
+                        )
+                    )
+
+                    child(
+                        VanillaButtonRenderer.vanillaButton(
+                            registerBtn.toComponent()
+                        ) {
+                            // For now we just use the uuid hashed with md5 and a random salt as the token.
+                            val uuid = MinecraftClient.getInstance().session.uuidOrNull?.toString()
+                                ?: return@vanillaButton
+                            val salt = List(16) { (0..255).random().toByte() }.toByteArray()
+                            val token = HashUtils.md5Hash("$uuid:${salt.decodeToString()}")
+                            WCSCoroutineScope.IO.launch {
+                                val response = NetUtils.managementClient.registerUser(
+                                    token = token
+                                )
+                                if (response.success) {
+                                    entry.setPending(token)
+                                    entry.setCommitted(token)
+                                }
+                            }
+                        }.tooltip(
+                            registerBtn.toComponent()
+                        )
+                    )
+                }
+            }
     }
 
     val reporting = group(
@@ -76,16 +121,6 @@ object GlobalConfigPage : ConfigPage(
         name = translatable("config.global.advanced", "高级设置", "Advanced Settings"),
         expanded = false
     ) {
-        var logLevel by config(default = LogLevel.INFO)
-            .name(translatable("config.advanced.loglevel", "日志级别", "Log Level"))
-            .description(
-                translatable(
-                    "config.advanced.loglevel.desc",
-                    "模组的日志输出级别",
-                    "Log output level for the mod"
-                )
-            )
-
         var debugMode by config(
             default = false,
             name = translatable("config.advanced.debug", "调试模式", "Debug Mode"),
@@ -103,7 +138,11 @@ object GlobalConfigPage : ConfigPage(
                     "实验性功能",
                     "Experimental Features"
                 )
-            )
+            ).postEntryComponent {
+                UIComponents.label(
+                    experimentalFlagWarning.toComponent()
+                ).color(Color.RED).margins(Insets.of(4, 0, 0, 0))
+            }
     }
 
     val advanced = group(Advanced)
@@ -111,4 +150,29 @@ object GlobalConfigPage : ConfigPage(
     enum class LogLevel {
         DEBUG, INFO, WARN, ERROR
     }
+
+    val registerText = translatable(
+        "config.reporting.apikey.register",
+        "没有 API 密钥？点击这里注册",
+        "Don't have an API key? Click here to register"
+    )
+    val registerBtn = translatable(
+        "config.reporting.apikey.register.button",
+        "注册",
+        "Register"
+    )
+    val registerBtnWarning = translatable(
+        "config.reporting.apikey.register.warning",
+        """注册后文本框内会出现一个新的 API 密钥
+            |请勿重复点击
+            |重复点击将导致密钥被覆盖且无法进行注册""".trimMargin(),
+        """A new API key will appear in the text box after registration.
+            |Please do not click repeatedly.
+            |Repeated clicks will overwrite the key and prevent further registration.""".trimMargin()
+    )
+    val experimentalFlagWarning = translatable(
+        "config.advanced.experimental.warning",
+        "启用后可能会导致不稳定！",
+        "May cause instability when enabled!"
+    )
 }

@@ -2,7 +2,6 @@ package fyw.fyi.wynnsource.module.pool
 
 import com.wynntils.core.components.Models
 import fyw.fyi.wynnsource.coroutine.WCSCoroutineScope
-import fyw.fyi.wynnsource.data.repository.BaseRepository
 import fyw.fyi.wynnsource.data.transformer.WynntilsTransformer
 import fyw.fyi.wynnsource.event.EventBus
 import fyw.fyi.wynnsource.event.RemoteContainerScreenEvent
@@ -16,14 +15,14 @@ object PoolModule : BaseModule() {
     override val name = "Pool"
     override val config = PoolConfigPage
     override val dataCollection = PoolDataCollection
-    override val repo: List<BaseRepository<*>>
-        get() = emptyList() // TODO fetch back the data for local view
+
+    // TODO add repositories for loot and raid pools, and a custom screen to view them.
 
     override fun subscribeEvents() {
         EventBus.subscribe(WCSCoroutineScope.Main, ::chestOpenListener)
     }
 
-    fun chestOpenListener(event: RemoteContainerScreenEvent) {
+    private fun chestOpenListener(event: RemoteContainerScreenEvent) {
         if (!this.config.enabled) return
 
         val screenHandler = event.screen.screenHandler
@@ -108,8 +107,8 @@ object PoolModule : BaseModule() {
         }
 
         val region = when (invType) {
-            RewardPoolType.Loot -> LootPool.entries.find { it.char == cps[3] }?.name ?: ""
-            RewardPoolType.Raid -> RaidPool.entries.find { it.char == cps[3] }?.name ?: ""
+            RewardPoolType.Loot -> LootPool.entries.find { it.char == cps[3] }?.name.orEmpty()
+            RewardPoolType.Raid -> RaidPool.entries.find { it.char == cps[3] }?.name.orEmpty()
             else -> null
         }
 

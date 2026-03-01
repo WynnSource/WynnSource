@@ -1,6 +1,7 @@
 package fyw.fyi.wynnsource.data
 
 import fyw.fyi.wynnsource.WynnSource
+import fyw.fyi.wynnsource.WynnSourceClient
 import fyw.fyi.wynnsource.config.GlobalConfigPage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -14,6 +15,7 @@ object DataPipeline {
     private var flushJob: Job? = null
 
     fun start(scope: CoroutineScope) {
+        if (WynnSourceClient.isDataGenMode) return
         flushJob = scope.launch {
             while (this.isActive) {
                 submitAll()
@@ -37,6 +39,7 @@ object DataPipeline {
                         "Submitting collection ${it.moduleId} with ${it.dirtyEntries.size} dirty entries..."
                     )
                     it.submit()
+                    it.entries.forEach { entry -> entry.dirty = false }
                 } catch (e: Exception) {
                     // We use general exception here to prevent one failed collection from blocking the entire pipeline.
                     WynnSource.logger.error("Error submitting collection ${it.moduleId}: ${e.message}")
