@@ -47,7 +47,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         val parsedDefenses = mutableListOf<Components.Defense>()
         var section = 0
         var isMajorSection = false
-        var parsedMajorId: MutableList<String> = mutableListOf()
+        val parsedMajorId: MutableList<String> = mutableListOf()
 
         for (line in itemLore) {
             if (isDivider(line)) {
@@ -190,7 +190,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         // Recursive find all text with style={font=Font[id=minecraft:banner/box]}
         if (text.content != null && text.style.font == FONT_BANNER_BOX) {
             when (FontUtils.filterAscii(FontUtils.fromBanner((text.content as PlainTextContent).string()))) {
-                "SPEAK" -> return GearOuterClass.GearType.GEAR_TYPE_SPEAR
+                "SPEAR" -> return GearOuterClass.GearType.GEAR_TYPE_SPEAR
                 "BOW" -> return GearOuterClass.GearType.GEAR_TYPE_BOW
                 "WAND" -> return GearOuterClass.GearType.GEAR_TYPE_WAND
                 "DAGGER" -> return GearOuterClass.GearType.GEAR_TYPE_DAGGER
