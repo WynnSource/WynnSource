@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.2.5] - 2026-03-02
+
+### Bug Fixes
+- CritDmg, loot identification and items in market by @FYWinds
+
+### Miscellaneous Tasks
+- Update changelog [skip ci] by @github-actions[bot]
+
+### New Contributors
+* @github-actions[bot] made their first contribution
+
 ## [0.2.4] - 2026-03-02
 
 ### Bug Fixes
@@ -62,6 +73,7 @@ All notable changes to this project will be documented in this file.
 ### New Contributors
 * @FYWinds made their first contribution
 
+[0.2.5]: https://github.com/WynnSource/WynnSource/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/WynnSource/WynnSource/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/WynnSource/WynnSource/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/WynnSource/WynnSource/compare/v0.2.1...v0.2.2
