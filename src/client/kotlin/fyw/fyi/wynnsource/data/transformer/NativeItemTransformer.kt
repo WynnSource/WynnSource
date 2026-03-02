@@ -107,6 +107,11 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
 
         val finalGearType = parsedGearType ?: error("GearType not found in lore")
 
+        if (parsedMajorId.all { it.startsWith('7') }) {
+            // in market
+            parsedMajorId.replaceAll { it.drop(1) }
+        }
+
         return wynnSourceItem {
             name = itemName
             level = parsedLevel ?: error("Level not found in lore")
@@ -147,9 +152,9 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     // \uE0008 is the lock in the name
     private val UNID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00\uE008\uDB00\uDC02(.*?)À?\uDAFC\uDC00$")
     private val LEVEL_PATTERN = Pattern.compile("^.*?Combat Level.*?(\\d+)$")
-    private val HEALTH_PATTERN = Pattern.compile("^.([+-][\\d,]+) Health$")
+    private val HEALTH_PATTERN = Pattern.compile("^.*?([+-][\\d,]+) Health$")
     private val ID_PATTERN = Pattern.compile(
-        "^([\\w\\s]+).*?([+-][\\d,]+)(?:/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(/\\ds|\\stier|%)?)?$"
+        "^.*?7?([\\w\\s]+).*?([+-][\\d,]+)(?:/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(/\\ds|\\stier|%)?)?$"
     )
     private val ATTACK_SPEED_PATTERN = Pattern.compile("^.*?\uE007\\s([\\w\\s]+) \\(.*$")
 
@@ -222,6 +227,12 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         }
     }
 
+    private val ID_MAPPING = mapOf(
+        "Combat Experience" to "xpBonus",
+        "Critical Damage" to "criticalDamageBonus",
+        "Loot" to "lootBonus"
+    )
+
     private fun extractIdentifications(text: Text): Components.Identification? {
         val idMatch = ID_PATTERN.matcher(text.string).takeIf { it.find() }
             ?: return null
@@ -232,10 +243,8 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
 
         var idStats: StatType? = null
 
-        if (idDisplayName == "Combat Experience") {
-            idStats = Models.Stat.allStatTypes.firstOrNull {
-                it.apiName == "xpBonus"
-            }
+        idStats = ID_MAPPING[idDisplayName]?.let { apiName ->
+            Models.Stat.allStatTypes.firstOrNull { it.apiName == apiName }
         }
 
         if (idDisplayName.endsWith(" Cost")) {
@@ -351,7 +360,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     }
 
     private fun extractDamage(text: Text): List<Components.DamageRange>? {
-        val str = text.string.filter { it.isDigit() || it == '-' || it in '\ue000'..'\ue005' }
+        val str = text.string.filter { it.isDigit() || it == '-' || it in '\ue000'..'\ue005' }.dropWhile { it == '7' }
         // Now str should be in the format of \uE00010-20\uE0015-10, split by the element symbol and parse
         val parts = str.split(Regex("(?=[\uE000-\uE005])")).filter { it.isNotBlank() }
         // Parse each pair of element and damage range
@@ -378,6 +387,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
 
     private fun extractDef(text: Text): List<Components.Defense>? {
         val str = text.string.filter { it.isDigit() || it == '-' || it == '+' || it in '\ue000'..'\ue005' }
+            .dropWhile { it == '7' }
         // Now str should be in the format of \uE000+/-10\uE001+/-20, split by the element symbol and parse
         val parts = str.split(Regex("(?=[\uE000-\uE005])")).filter { it.isNotBlank() }
         // Parse each pair of element and defense value
