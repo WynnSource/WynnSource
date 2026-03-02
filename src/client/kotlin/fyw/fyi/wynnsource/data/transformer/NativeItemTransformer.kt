@@ -147,7 +147,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     // \uE0008 is the lock in the name
     private val UNID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00\uE008\uDB00\uDC02(.*?)À?\uDAFC\uDC00$")
     private val LEVEL_PATTERN = Pattern.compile("^.*?Combat Level.*?(\\d+)$")
-    private val HEALTH_PATTERN = Pattern.compile("^.[+-]([\\d,]+) Health$")
+    private val HEALTH_PATTERN = Pattern.compile("^.([+-][\\d,]+) Health$")
     private val ID_PATTERN = Pattern.compile(
         "^([\\w\\s]+).*?([+-][\\d,]+)(?:/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(/\\ds|\\stier|%)?)?$"
     )
