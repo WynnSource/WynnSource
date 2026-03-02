@@ -61,7 +61,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body: ${{ steps.git-cliff.outputs.changelog }}
+          body: ${{ steps.git-cliff.outputs.content }}
           files: build/libs/*.jar
           draft: true
 
