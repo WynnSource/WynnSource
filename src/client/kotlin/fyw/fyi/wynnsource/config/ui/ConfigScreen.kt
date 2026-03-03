@@ -207,6 +207,7 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
     }
 
     private fun switchToPage(page: ConfigPage) {
+        currentPage?.setScreen(null)
         currentPage = page
 
         tabButtons.forEach { (id, btn) ->
@@ -214,9 +215,10 @@ class ConfigScreen(private val parent: Screen? = null) : BaseOwoScreen<FlowLayou
         }
 
         refreshContent()
+        page.setScreen(this)
     }
 
-    private fun refreshContent() {
+    fun refreshContent() {
         val panel = contentPanel ?: return
         panel.clearChildren()
 

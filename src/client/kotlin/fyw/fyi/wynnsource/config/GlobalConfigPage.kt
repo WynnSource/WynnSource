@@ -103,6 +103,7 @@ object GlobalConfigPage : ConfigPage(
                                 if (response.success) {
                                     entry.setPending(token)
                                     entry.setCommitted(token)
+                                    this@GlobalConfigPage.refresh()
                                 }
                             }
                         }.tooltip(

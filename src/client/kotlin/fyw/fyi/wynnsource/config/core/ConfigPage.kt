@@ -2,6 +2,7 @@ package fyw.fyi.wynnsource.config.core
 
 import fyw.fyi.wynnsource.config.constraint.ValidationResult
 import fyw.fyi.wynnsource.config.delegate.ConfigDelegate
+import fyw.fyi.wynnsource.config.ui.ConfigScreen
 import fyw.fyi.wynnsource.datagen.lang.LangRegistry
 import fyw.fyi.wynnsource.datagen.lang.Translatable
 import io.wispforest.owo.ui.core.UIComponent
@@ -28,6 +29,8 @@ abstract class ConfigPage(
     // Foldable group containing entries
     @PublishedApi
     internal val groups = mutableListOf<ConfigGroup>()
+
+    private var screen: ConfigScreen? = null
 
     /**
      * Helper to create a Translatable via LangRegistry.
@@ -144,4 +147,18 @@ abstract class ConfigPage(
      * Get all groups.
      */
     fun getAllGroups(): List<ConfigGroup> = groups.toList()
+
+    /**
+     * Set the parent screen for this config page. This is used to actively refresh the screen when changes are made.
+     */
+    fun setScreen(screen: ConfigScreen?) {
+        this.screen = screen
+    }
+
+    /**
+     * Refresh current page
+     */
+    fun refresh() {
+        screen?.refreshContent()
+    }
 }
