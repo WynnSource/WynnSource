@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory
 abstract class BaseModule {
     abstract val name: String
     abstract val config: ConfigPage?
-    abstract val dataCollection: DataCollection<*>?
-    open val repo: MutableList<BaseRepository<*>> = mutableListOf()
+    val dataCollection: MutableList<DataCollection<*>> = mutableListOf()
+    val repo: MutableList<BaseRepository<*>> = mutableListOf()
 
     abstract fun subscribeEvents()
 

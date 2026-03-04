@@ -59,7 +59,7 @@ object WynnSourceClient : ClientModInitializer {
             module.config?.let {
                 ConfigRegistry.register(it)
             }
-            module.dataCollection?.let {
+            module.dataCollection.forEach {
                 DataPipeline.registerCollection(it)
             }
             module.repo.forEach {

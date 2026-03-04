@@ -14,7 +14,6 @@ import com.wynntils.models.gear.type.GearAttackSpeed
 import com.wynntils.models.gear.type.GearRequirements
 import com.wynntils.models.gear.type.GearTier
 import com.wynntils.models.gear.type.GearType
-import com.wynntils.models.ingredients.type.IngredientPosition
 import com.wynntils.models.items.WynnItem
 import com.wynntils.models.items.items.game.AmplifierItem
 import com.wynntils.models.items.items.game.AspectItem
@@ -66,7 +65,6 @@ import fyw.fyi.wynnsource.schema.item.ConsumableOuterClass
 import fyw.fyi.wynnsource.schema.item.CorkianModifierOuterClass
 import fyw.fyi.wynnsource.schema.item.EmeraldOuterClass
 import fyw.fyi.wynnsource.schema.item.GearOuterClass
-import fyw.fyi.wynnsource.schema.item.IngredientOuterClass
 import fyw.fyi.wynnsource.schema.item.MaterialOuterClass
 import fyw.fyi.wynnsource.schema.item.MountOuterClass
 import fyw.fyi.wynnsource.schema.item.TomeOuterClass
@@ -86,7 +84,6 @@ import fyw.fyi.wynnsource.schema.item.healingPotion
 import fyw.fyi.wynnsource.schema.item.identifiedGear
 import fyw.fyi.wynnsource.schema.item.ingredient
 import fyw.fyi.wynnsource.schema.item.material
-import fyw.fyi.wynnsource.schema.item.modifier
 import fyw.fyi.wynnsource.schema.item.mount
 import fyw.fyi.wynnsource.schema.item.mountXp
 import fyw.fyi.wynnsource.schema.item.named
@@ -180,7 +177,7 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
             gear = gear {
                 type = item.gearType.toWCS()
                 requirements = serializeGearRequirements(gearInfo.requirements())
-
+                powders.addAll(serializePowders(item.powders, item.powderSlots))
                 // Identified vs unidentified state
                 if (item.isUnidentified) {
                     unidentified = serializeUnidentifiedGear(item)
@@ -189,7 +186,6 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
                         identifications.addAll(
                             serializeIdentifications(item.identifications, item.possibleValues)
                         )
-                        powders.addAll(serializePowders(item.powders, item.powderSlots))
                         rerolls = item.rerollCount
 
                         item.shinyStat.ifPresent { stat ->
@@ -223,6 +219,7 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
             gear = gear {
                 type = item.gearType.toWCS()
                 requirements = serializeGearRequirements(item.requirements)
+                powders.addAll(serializePowders(item.powders, item.powderSlots))
 
                 if (item.isUnidentified) {
                     unidentified = unidentifiedGear {}
@@ -231,7 +228,6 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
                         identifications.addAll(
                             serializeIdentifications(item.identifications, emptyList())
                         )
-                        powders.addAll(serializePowders(item.powders, item.powderSlots))
                         rerolls = item.rerollCount
 
                         item.shinyStat.ifPresent { stat ->
@@ -285,6 +281,7 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
                 type = item.gearType.toWCS()
 
                 requirements = serializeGearRequirements(item.requirements)
+                powders.addAll(serializePowders(item.powders, item.powderSlots))
 
                 crafted = craftedGear {
                     durability = durability {
@@ -301,8 +298,6 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
                             maxVal = possible?.range()?.high() ?: id.value()
                         }
                     }
-
-                    powders.addAll(serializePowders(item.powders, item.powderSlots))
                 }
 
                 // Base stats
@@ -478,12 +473,7 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
                 }
 
                 // Position modifiers
-                for ((pos, value) in info.positionModifiers()) {
-                    modifiers += modifier {
-                        this.pos = pos.toWCS()
-                        this.value = value
-                    }
-                }
+                // TODO - need to confirm how these work and if they can be determined from the item data
             }
         }
     }
@@ -887,17 +877,6 @@ object WynntilsTransformer : ItemTransformer<WynnItem>() {
             ProfessionType.COOKING -> Enums.Profession.PROFESSION_COOKING
             // Gathering professions have no WCS equivalent
             else -> Enums.Profession.PROFESSION_UNSPECIFIED
-        }
-    }
-
-    fun IngredientPosition.toWCS(): IngredientOuterClass.ModifierPos {
-        return when (this) {
-            IngredientPosition.LEFT -> IngredientOuterClass.ModifierPos.MODIFIER_POS_LEFT
-            IngredientPosition.RIGHT -> IngredientOuterClass.ModifierPos.MODIFIER_POS_RIGHT
-            IngredientPosition.ABOVE -> IngredientOuterClass.ModifierPos.MODIFIER_POS_UP
-            IngredientPosition.UNDER -> IngredientOuterClass.ModifierPos.MODIFIER_POS_DOWN
-            IngredientPosition.TOUCHING -> IngredientOuterClass.ModifierPos.MODIFIER_POS_TOUCH
-            IngredientPosition.NOT_TOUCHING -> IngredientOuterClass.ModifierPos.MODIFIER_POS_NO_TOUCH
         }
     }
 

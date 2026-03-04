@@ -9,6 +9,7 @@ import fyw.fyi.wynnsource.schema.common.Enums
 import fyw.fyi.wynnsource.schema.common.damageRange
 import fyw.fyi.wynnsource.schema.common.defense
 import fyw.fyi.wynnsource.schema.common.identification
+import fyw.fyi.wynnsource.schema.common.powderSlot
 import fyw.fyi.wynnsource.schema.common.requirements
 import fyw.fyi.wynnsource.schema.item.GearOuterClass
 import fyw.fyi.wynnsource.schema.item.armorStats
@@ -48,6 +49,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         var section = 0
         var isMajorSection = false
         val parsedMajorId: MutableList<String> = mutableListOf()
+        var parsedSet: String? = null
 
         for (line in itemLore) {
             if (isDivider(line)) {
@@ -66,6 +68,9 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
                     }
                     if (parsedHealth == null) {
                         parsedHealth = extractHealth(line)
+                    }
+                    if (parsedSet == null) {
+                        parsedSet = extractSet(line)
                     }
                     extractDamage(line)?.let { parsedDamages.addAll(it) }
                     extractDef(line)?.let { parsedDefenses.addAll(it) }
@@ -121,6 +126,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
                 type = finalGearType
                 requirements = parsedRequirements ?: error("Requirements not found in lore")
                 majorId = parsedMajorId.joinToString(" ")
+                set = parsedSet ?: ""
 
                 unidentified = unidentifiedGear {
                     identifications += parsedIdentifications.ifEmpty { error("Identifications not found in lore") }
@@ -141,6 +147,60 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         }
     }
 
+    fun serializePowderPatch(item: ItemStack): WynnSourceItemOuterClass.WynnSourceItem {
+        val itemName = ID_NAME_PATTERN.matcher(getItemStackName(item)).takeIf { it.find() }?.group(1)
+            ?: error("Item type not supported yet")
+        var parsedRarity: Enums.Rarity? = null
+        var parsedGearType: GearOuterClass.GearType? = null
+        val itemLore = getItemStackLore(item)
+        var section = 0
+        var parsedPowderSlots: Int? = null
+
+        for (line in itemLore) {
+            if (isDivider(line)) {
+                section++
+                continue
+            }
+
+            when (section) {
+                0 -> {
+                    // First section, contains name, rarity, gear type, weapon/armor stats
+                    if (parsedRarity == null) {
+                        parsedRarity = toRarity(line)
+                    }
+                    if (parsedGearType == null) {
+                        parsedGearType = toGearType(line)
+                    }
+                }
+
+                1, 2 -> { // If there is the set, the powder slots info can be in the thrid section
+                    if (isPowder(line) && parsedPowderSlots == null) {
+                        parsedPowderSlots = extractPowder(line)
+                    }
+                }
+
+                else -> {
+                    // Ignore other sections for now
+                }
+            }
+        }
+
+        return wynnSourceItem {
+            name = itemName
+            rarity = parsedRarity ?: error("Rarity not found in lore")
+            gear = gear {
+                type = parsedGearType ?: error("GearType not found in lore")
+                powders.addAll(
+                    List(parsedPowderSlots ?: error("Powder slots not found in lore")) {
+                        powderSlot {
+
+                        }
+                    }
+                )
+            }
+        }
+    }
+
     override fun deserialize(item: WynnSourceItemOuterClass.WynnSourceItem): ItemStack {
         TODO("Not yet implemented")
     }
@@ -148,6 +208,9 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     // ========================================================================
     // Shared Helpers
     // ========================================================================
+
+
+    private val ID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00([\\w\\s]+)À?\uDAFC\uDC00\$")
 
     // \uE0008 is the lock in the name
     private val UNID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00\uE008\uDB00\uDC02(.*?)À?\uDAFC\uDC00$")
@@ -446,6 +509,48 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
             return true
         }
         return text.siblings.any { isPager(it) }
+    }
+
+    private val POWDER_REGEX = Pattern.compile("^(\\d+)/(\\d+)$")
+    private fun isPowder(text: Text): Boolean {
+        if (text.content != null && text.style.font == FONT_BANNER_BOX) {
+            return FontUtils.filterAscii(
+                FontUtils.fromBanner(
+                    (text.content as PlainTextContent).string()
+                )
+            ) == "POWDERSOCKETS"
+        }
+        return text.siblings.any { isPowder(it) }
+    }
+
+    private fun extractPowder(text: Text): Int? {
+        if (text.content != null && text.style.font == FONT_LANGUAGE_WYNNCRAFT) {
+            val match =
+                POWDER_REGEX.matcher(
+                    (text.content as PlainTextContent).string()
+                ).takeIf { it.find() } ?: return null
+            val current = match.group(1).toIntOrNull() ?: return null
+            val max = match.group(2).toIntOrNull() ?: return null
+            return max;
+        }
+        return text.siblings.firstNotNullOfOrNull { extractPowder(it) }
+    }
+
+    private val SET_REGEX = Pattern.compile("^(\\w+)SET$")
+    private fun extractSet(text: Text): String? {
+        if (text.content != null && text.style.font == FONT_BANNER_BOX) {
+            val match =
+                SET_REGEX.matcher(
+                    FontUtils.filterAscii(
+                        FontUtils.fromBanner(
+                            (text.content as PlainTextContent).string()
+                        )
+                    )
+                ).takeIf { it.find() }
+                    ?: return null
+            return match.group(1)
+        }
+        return text.siblings.firstNotNullOfOrNull { extractSet(it) }
     }
 
     // ========================================================================

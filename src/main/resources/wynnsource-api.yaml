@@ -133,10 +133,7 @@ paths:
       tags:
         - management
       summary: Register New User
-      description: |-
-        Register a new user with the given token.
-
-        ⏱️ Rate Limited: `1` requests per `1 hour`  based on IP.
+      description: Register a new user with the given token.
       operationId: register_user
       parameters:
         - name: token
@@ -152,44 +149,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WCSResponse_UserInfoResponse_"
-          headers:
-            X-RateLimit-Limit:
-              schema:
-                type: integer
-              description: Requests allowed per window
-            X-RateLimit-Remaining:
-              schema:
-                type: integer
-              description: Requests remaining
-            X-RateLimit-Reset:
-              schema:
-                type: integer
-              description: Seconds until reset
         "422":
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationErrorResponse"
           description: Unprocessable Entity
-        "429":
-          headers:
-            X-RateLimit-Limit:
-              schema:
-                type: integer
-              description: Requests allowed per window
-            X-RateLimit-Remaining:
-              schema:
-                type: integer
-              description: Requests remaining
-            X-RateLimit-Reset:
-              schema:
-                type: integer
-              description: Seconds until reset
-            X-Retry-After:
-              schema:
-                type: integer
-              description: Seconds until you can retry
-          description: Too Many Requests
   /api/v2/manage/user/create:
     post:
       tags:
@@ -472,7 +437,7 @@ paths:
       description: |-
         List all items in the beta list.
 
-        ⌛ This response is cached for `5 minutes`.
+        ⌛ This response is cached for `30 seconds`.
 
         ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
       operationId: list_beta_items
@@ -542,7 +507,7 @@ paths:
       description: |-
         Submit new items to be added to the beta list.
 
-        ⏱️ Rate Limited: `30` requests per `1 minute`  based on IP.
+        ⏱️ Rate Limited: `300` requests per `1 minute`  based on IP.
       operationId: submit_beta_item
       requestBody:
         required: true
@@ -595,6 +560,213 @@ paths:
                 type: integer
               description: Seconds until you can retry
           description: Too Many Requests
+    delete:
+      tags:
+        - beta
+      summary: Delete Beta Items
+      description: |-
+        Delete items from the beta list by name.
+
+        🛡️ Required Permission(s): `beta.items.write`
+      operationId: delete_beta_items
+      security:
+        - APIKeyHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              title: Items
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmptyResponse"
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+  /api/v2/beta/items/filter:
+    get:
+      tags:
+        - beta
+      summary: List Beta Items
+      description: >-
+        List items in the beta list.
+
+        If `names` query parameter is non-empty, only items with matching names
+        will be returned.
+
+
+        ⌛ This response is cached for `30 seconds`.
+
+
+        ⏱️ Rate Limited: `10` requests per `1 minute`  based on IP.
+      operationId: list_beta_items_filtered
+      parameters:
+        - name: names
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            description: Optional list of item names to filter by
+            title: Names
+          description: Optional list of item names to filter by
+        - name: item_return_type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/ItemReturnType"
+            default: b64
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WCSResponse_BetaItemListResponse_"
+          headers:
+            X-Cache:
+              schema:
+                type: string
+                enum:
+                  - HIT
+                  - MISS
+              description: Cache status
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+          description: Unprocessable Entity
+        "429":
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Requests allowed per window
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Requests remaining
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+              description: Seconds until reset
+            X-Retry-After:
+              schema:
+                type: integer
+              description: Seconds until you can retry
+          description: Too Many Requests
+  /api/v2/beta/items/patch:
+    post:
+      tags:
+        - beta
+      summary: Patch existing Beta Items
+      description: >-
+        Patch existing items in the beta list. Only fields specified in the
+        submission will be updated.
+
+
+        ⏱️ Rate Limited: `300` requests per `1 minute`  based on IP.
+      operationId: patch_beta_items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemPatchSubmission"
+        required: true
+      responses:
+        "200":
+          description: Successful Response
+          headers:
+            X-RateLimit-Limit:
+              description: Requests allowed per window
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until reset
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmptyResponse"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "429":
+          description: Too Many Requests
+          headers:
+            X-RateLimit-Limit:
+              description: Requests allowed per window
+              schema:
+                type: integer
+            X-RateLimit-Remaining:
+              description: Requests remaining
+              schema:
+                type: integer
+            X-RateLimit-Reset:
+              description: Seconds until reset
+              schema:
+                type: integer
+            X-Retry-After:
+              description: Seconds until you can retry
+              schema:
+                type: integer
+  /api/v2/beta/items/clear:
+    delete:
+      tags:
+        - beta
+      summary: Clear Beta Items
+      description: |-
+        Clear all items from the beta list.
+
+        🛡️ Required Permission(s): `beta.items.write`
+      operationId: clear_beta_items
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmptyResponse"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+      security:
+        - APIKeyHeader: []
   /api/v2/test:
     get:
       tags:
@@ -931,6 +1103,33 @@ components:
         - msg
         - input
       title: ErrorDetails
+    ItemPatchSubmission:
+      properties:
+        client_timestamp:
+          type: string
+          format: date-time
+          title: Client Timestamp
+        mod_version:
+          type: string
+          title: Mod Version
+        patch:
+          $ref: "#/components/schemas/PatchableItemField"
+        items:
+          items:
+            type: string
+          type: array
+          title: Items
+          description: List of base64-encoded protobuf bytes for items to add/update
+          examples:
+            - - aXRlbV9kYXRhXzE=
+              - aXRlbV9kYXRhXzI=
+      type: object
+      required:
+        - client_timestamp
+        - mod_version
+        - patch
+        - items
+      title: ItemPatchSubmission
     ItemReturnType:
       type: string
       enum:
@@ -1038,6 +1237,11 @@ components:
         - items
         - confidence
       title: PageConsensus
+    PatchableItemField:
+      type: string
+      enum:
+        - powder
+      title: PatchableItemField
     PoolConsensusResponse:
       properties:
         pool_type:

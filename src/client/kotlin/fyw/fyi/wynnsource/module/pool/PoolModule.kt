@@ -14,7 +14,10 @@ import net.minecraft.text.Text
 object PoolModule : BaseModule() {
     override val name = "Pool"
     override val config = PoolConfigPage
-    override val dataCollection = PoolDataCollection
+
+    init {
+        this.dataCollection += PoolDataCollection
+    }
 
     // TODO add repositories for loot and raid pools, and a custom screen to view them.
 
@@ -51,12 +54,12 @@ object PoolModule : BaseModule() {
         }
 
         when (poolType) {
-            RewardPoolType.Loot -> dataCollection.addEntry(key, items)
+            RewardPoolType.Loot -> PoolDataCollection.addEntry(key, items)
             RewardPoolType.Raid -> {
                 key = "Raid_items:$region:$page"
-                dataCollection.addEntry(key, items.filter { !it.hasAspect() })
+                PoolDataCollection.addEntry(key, items.filter { !it.hasAspect() })
                 key = "Raid_aspects:$region:$page"
-                dataCollection.addEntry(key, items.filter { it.hasAspect() })
+                PoolDataCollection.addEntry(key, items.filter { it.hasAspect() })
             }
         }
 
