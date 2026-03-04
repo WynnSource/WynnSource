@@ -1,12 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## [0.2.5] - 2026-03-02
+## [0.2.6] - 2026-03-04
 
 ### Bug Fixes
 - CritDmg, loot identification and items in market by @FYWinds
+- Update changelog output reference in release.yaml [skip ci] by @FYWinds
+- Fixed config UI input not refreshing by @FYWinds
+
+### Features
+- Added set and powder collecting. by @FYWinds
 
 ### Miscellaneous Tasks
+- Update changelog [skip ci] by @github-actions[bot]
 - Update changelog [skip ci] by @github-actions[bot]
 
 ### New Contributors
@@ -73,7 +79,7 @@ All notable changes to this project will be documented in this file.
 ### New Contributors
 * @FYWinds made their first contribution
 
-[0.2.5]: https://github.com/WynnSource/WynnSource/compare/v0.2.4...v0.2.5
+[0.2.6]: https://github.com/WynnSource/WynnSource/compare/v0.2.4...v0.2.6
 [0.2.4]: https://github.com/WynnSource/WynnSource/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/WynnSource/WynnSource/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/WynnSource/WynnSource/compare/v0.2.1...v0.2.2
