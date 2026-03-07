@@ -5,7 +5,8 @@
   "client": [
     "mc.ClientPlayNetworkHandlerMixin",
     "mc.HandledScreenMixin",
-    "wynntils.ShinyStatTypesAccessor"
+    "wynntils.ShinyStatTypesAccessor",
+    "wynntils.WorldStateModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -21,6 +21,20 @@ object FontUtils {
         return sb.toString()
     }
 
+    fun toBanner(text: String, box: Boolean = false): String {
+        val sb = StringBuilder()
+        val offset = if (box) '\uE030' else '\uE000'
+        for (char in text) {
+            val index = TEXT_SEQUENCE.indexOf(char)
+            if (index != -1) {
+                sb.append(offset + index)
+            } else {
+                sb.append(char)
+            }
+        }
+        return sb.toString()
+    }
+
     fun filterAscii(text: String): String {
         return text.filter { it in '\u0000'..'\u007F' }
     }
