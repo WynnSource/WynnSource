@@ -28,6 +28,7 @@ object BetaModule : BaseModule() {
 
         handleNewItemSubmission(itemStack)
         handleNewPowderPatchSubmission(itemStack)
+        handleNewIngredientSubmission(itemStack)
     }
 
     private fun handleNewItemSubmission(itemStack: ItemStack) {
@@ -62,5 +63,20 @@ object BetaModule : BaseModule() {
         // Check local cache
         if (BetaItemPowderPatchCollection.entries.any { it.key == item.name }) return
         BetaItemPowderPatchCollection.addEntry(item.name, item)
+    }
+
+    private fun handleNewIngredientSubmission(itemStack: ItemStack) {
+        val ingredient = runCatching {
+            NativeItemTransformer.serializeIngredient(itemStack)
+        }.onFailure {
+            return
+        }.getOrNull() ?: return
+
+        // Check non-beta database
+        if (ItemDatabase.getOrNull()?.contains(ingredient.name) ?: return) return
+        // Check local cache
+        if (BetaItemSubmissionCollection.entries.any { it.key == ingredient.name }) return
+        logger.info("Found new ingredient ${ingredient.name}.")
+        BetaItemSubmissionCollection.addEntry(ingredient.name, ingredient)
     }
 }

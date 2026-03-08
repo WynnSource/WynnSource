@@ -10,15 +10,25 @@ object FontUtils {
     fun fromBanner(text: String): String {
         val sb = StringBuilder()
         for (char in text) {
-            if (char in '\uE000'..'\uE02F') {
-                sb.append(TEXT_SEQUENCE[char - '\uE000'])
-            } else if (char in '\uE030'..'\uE05F') {
-                sb.append(TEXT_SEQUENCE[char - '\uE030'])
-            } else {
-                sb.append(char)
+            when (char) {
+                in '\uE000'..'\uE02F' -> {
+                    sb.append(TEXT_SEQUENCE[char - '\uE000'])
+                }
+
+                in '\uE030'..'\uE05F' -> {
+                    sb.append(TEXT_SEQUENCE[char - '\uE030'])
+                }
+
+                else -> {
+                    sb.append(char)
+                }
             }
         }
         return sb.toString()
+    }
+
+    fun fromBannerFiltered(text: String): String {
+        return filterAscii(fromBanner(text))
     }
 
     fun toBanner(text: String, box: Boolean = false): String {

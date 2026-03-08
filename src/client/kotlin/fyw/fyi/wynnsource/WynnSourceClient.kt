@@ -108,14 +108,16 @@ object WynnSourceClient : ClientModInitializer {
                 ) { event: WorldStateChangeEvent ->
                     if (event.newState == WorldState.WORLD && event.isFirstJoinWorld) {
                         ChatLogger.log(
-                            Text.literal("A new version of WynnSource is available: ${newRelease.name}")
-                                .styled { style ->
+                            Text.literal("A new version of WynnSource is available: ").append(
+                                Text.literal(newRelease.name).styled { style ->
                                     style.withClickEvent(
                                         ClickEvent.OpenUrl(URI(newRelease.htmlUrl))
                                     ).withHoverEvent(
                                         HoverEvent.ShowText(Text.literal("Click to view the release on GitHub"))
-                                    )
-                                })
+                                    ).withUnderline(true)
+                                }
+                            )
+                        )
                     }
                 }
             }

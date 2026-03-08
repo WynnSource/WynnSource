@@ -6,14 +6,21 @@ import com.wynntils.models.stats.type.StatType
 import fyw.fyi.wynnsource.schema.WynnSourceItemOuterClass
 import fyw.fyi.wynnsource.schema.common.Components
 import fyw.fyi.wynnsource.schema.common.Enums
+import fyw.fyi.wynnsource.schema.common.craftedEffect
 import fyw.fyi.wynnsource.schema.common.damageRange
 import fyw.fyi.wynnsource.schema.common.defense
 import fyw.fyi.wynnsource.schema.common.identification
 import fyw.fyi.wynnsource.schema.common.powderSlot
 import fyw.fyi.wynnsource.schema.common.requirements
 import fyw.fyi.wynnsource.schema.item.GearOuterClass
+import fyw.fyi.wynnsource.schema.item.IngredientOuterClass
 import fyw.fyi.wynnsource.schema.item.armorStats
+import fyw.fyi.wynnsource.schema.item.copy
 import fyw.fyi.wynnsource.schema.item.gear
+import fyw.fyi.wynnsource.schema.item.ingredient
+import fyw.fyi.wynnsource.schema.item.modifier
+import fyw.fyi.wynnsource.schema.item.modifierPos
+import fyw.fyi.wynnsource.schema.item.reqModifier
 import fyw.fyi.wynnsource.schema.item.unidentifiedGear
 import fyw.fyi.wynnsource.schema.item.weaponStats
 import fyw.fyi.wynnsource.schema.wynnSourceItem
@@ -201,6 +208,129 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         }
     }
 
+    fun serializeIngredient(item: ItemStack): WynnSourceItemOuterClass.WynnSourceItem {
+        val itemName = ID_NAME_PATTERN.matcher(getItemStackName(item)).takeIf { it.find() }?.group(1)
+            ?: error("Item type not supported yet")
+        val itemLore = getItemStackLore(item)
+        var isIngredient = false
+        var section = 0
+        var parsedIngredientTier: Enums.IngredientRarity? = null
+        val parsedProfessions = mutableListOf<Enums.Profession>()
+        var parsedLevel: Int? = null
+        var parsedDurability: Int? = null
+        var parsedCharge: Int? = null
+        var parsedDuration: Int? = null
+        var parsedMinReq: IngredientOuterClass.ReqModifier = reqModifier {}
+        val parsedCraftedEffects = mutableListOf<Components.CraftedEffect>()
+        var modifierStart = false
+        var curEffectY = -2
+        val parsedModifiers = mutableListOf<IngredientOuterClass.Modifier>()
+
+        for (line in itemLore) {
+            if (isDivider(line)) {
+                section++
+                continue
+            }
+
+            when (section) {
+                0 -> {
+                    // tier, type, level, profession
+                    if (isIngredient(line)) {
+                        isIngredient = true
+                    }
+                    parsedIngredientTier = parsedIngredientTier ?: extractIngreTier(line)
+
+                    parsedProfessions.addAll(extractProfessions(line))
+                    parsedLevel =
+                        parsedLevel ?: CRAFTING_LEVEL_PATTERN.matcher(line.string).takeIf { it.find() }?.group(1)
+                            ?.toIntOrNull()
+                }
+
+                1, 2 -> {
+                    // durability, charge, duration, min req
+                    // identifications
+                    // effectiveness sometime
+                    parsedDurability =
+                        parsedDurability ?: DURABILITY_PATTERN.matcher(line.string).takeIf { it.find() }?.group(1)
+                            ?.toIntOrNull()
+                    parsedCharge =
+                        parsedCharge ?: CHARGE_PTTERN.matcher(line.string).takeIf { it.find() }?.group(1)
+                            ?.toIntOrNull()
+                    parsedDuration =
+                        parsedDuration ?: DURATION_PATTERN.matcher(line.string).takeIf { it.find() }?.group(1)
+                            ?.toIntOrNull()
+
+                    val minReqMatch = MIN_REQ_PATTERN.matcher(line.string).takeIf { it.find() }
+                    if (minReqMatch != null) {
+                        val statName = minReqMatch.group(1)
+                        val statValue = minReqMatch.group(2).toIntOrNull() ?: 0
+                        when (statName) {
+                            "Strength" -> parsedMinReq = parsedMinReq.copy { strengthReq = statValue }
+                            "Dexterity" -> parsedMinReq = parsedMinReq.copy { dexterityReq = statValue }
+                            "Intelligence" -> parsedMinReq = parsedMinReq.copy { intelligenceReq = statValue }
+                            "Defense" -> parsedMinReq = parsedMinReq.copy { defenseReq = statValue }
+                            "Agility" -> parsedMinReq = parsedMinReq.copy { agilityReq = statValue }
+                        }
+                    }
+                    extractCraftedEffect(line)?.let { parsedCraftedEffects.add(it) }
+
+                    if ("EFFECTIVENESS" in FontUtils.fromBannerFiltered(line.string)) {
+                        modifierStart = true
+                    }
+
+                    if (modifierStart) {
+                        // effectiveness
+                        val effectivenessMatch = EFFECTIVENESS_PATTERN.findAll(line.string)
+                        var curEffectX = -1
+                        effectivenessMatch.forEach {
+                            val valueStr = it.value
+                            val value = valueStr.replace("%", "").toIntOrNull() ?: return@forEach
+                            parsedModifiers.add(
+                                modifier {
+                                    pos = modifierPos {
+                                        x = curEffectX++
+                                        y = curEffectY
+                                    }
+                                    this.value = value
+                                }
+                            )
+                            // For the middle line, we skip the second column as it's the center
+                            if (curEffectY == 0) {
+                                curEffectX++
+                            }
+                        }.also {
+                            if (curEffectX != -1) {
+                                curEffectY++
+                            }
+                        }
+                    }
+                }
+
+                else -> {
+                    // Ignore other sections for now
+                }
+            }
+        }
+
+        require(isIngredient) { "Not an ingredient" }
+
+        return wynnSourceItem {
+            name = itemName
+            level = parsedLevel ?: error("Level not found in lore")
+
+            ingredient = ingredient {
+                parsedDurability?.let { durability = it }
+                parsedCharge?.let { charges = it }
+                parsedDuration?.let { duration = it }
+                rarity = parsedIngredientTier ?: error("Ingredient tier not found in lore")
+                reqModifier = parsedMinReq
+                effects.addAll(parsedCraftedEffects)
+                professions.addAll(parsedProfessions)
+                modifiers.addAll(parsedModifiers)
+            }
+        }
+    }
+
     override fun deserialize(item: WynnSourceItemOuterClass.WynnSourceItem): ItemStack {
         TODO("Not yet implemented")
     }
@@ -210,16 +340,23 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     // ========================================================================
 
 
-    private val ID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00([\\w\\s]+)À?\uDAFC\uDC00\$")
+    private val ID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00(.+)À?\uDAFC\uDC00$")
 
     // \uE0008 is the lock in the name
     private val UNID_NAME_PATTERN = Pattern.compile("^\uDAFC\uDC00\uE008\uDB00\uDC02(.*?)À?\uDAFC\uDC00$")
     private val LEVEL_PATTERN = Pattern.compile("^.*?Combat Level.*?(\\d+)$")
+    private val CRAFTING_LEVEL_PATTERN = Pattern.compile("^.*?(\\d+) Crafting Level.*?$")
     private val HEALTH_PATTERN = Pattern.compile("^.*?([+-][\\d,]+) Health$")
     private val ID_PATTERN = Pattern.compile(
-        "^.*?7?([\\w\\s]+).*?([+-][\\d,]+)(?:/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(/\\ds|\\stier|%)?)?$"
+        "^.*?7?([\\w\\s]+).*?([+-][\\d,]+)(/\\ds|\\stier|%)?(?:\\sto\\s([+-][\\d,]+)(?:/\\ds|\\stier|%)?)?$"
     )
     private val ATTACK_SPEED_PATTERN = Pattern.compile("^.*?\uE007\\s([\\w\\s]+) \\(.*$")
+    private val DURABILITY_PATTERN = Pattern.compile("^.*?Durability.*?([+-]\\d+)$")
+    private val DURATION_PATTERN = Pattern.compile("^.*?Duration.*?([+-]\\d+)s$")
+    private val CHARGE_PTTERN = Pattern.compile("^.*?Charges.*?([+-]\\d+)$")
+    private val MIN_REQ_PATTERN = Pattern.compile("^.*?Min\\.\\s(\\w+).*?([+-]\\d+)$")
+    private val EFFECTIVENESS_PATTERN = "([+-]?\\d+%)".toRegex()
+
 
     private enum class TooltipElement(val char: Char, val wcs: Enums.Element) {
         EARTH('\uE000', Enums.Element.ELEMENT_EARTH),
@@ -241,7 +378,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     private fun toRarity(text: Text): Enums.Rarity? {
         // Recursive find all text with style={font=Font[id=minecraft:banner/box]}
         if (text.content != null && text.style.font == FONT_BANNER_BOX) {
-            when (FontUtils.filterAscii(FontUtils.fromBanner((text.content as PlainTextContent).string()))) {
+            when (FontUtils.fromBannerFiltered((text.content as PlainTextContent).string())) {
                 "COMMON" -> return Enums.Rarity.RARITY_COMMON
                 "UNIQUE" -> return Enums.Rarity.RARITY_UNIQUE
                 "RARE" -> return Enums.Rarity.RARITY_RARE
@@ -257,7 +394,7 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
     private fun toGearType(text: Text): GearOuterClass.GearType? {
         // Recursive find all text with style={font=Font[id=minecraft:banner/box]}
         if (text.content != null && text.style.font == FONT_BANNER_BOX) {
-            when (FontUtils.filterAscii(FontUtils.fromBanner((text.content as PlainTextContent).string()))) {
+            when (FontUtils.fromBannerFiltered((text.content as PlainTextContent).string())) {
                 "SPEAR" -> return GearOuterClass.GearType.GEAR_TYPE_SPEAR
                 "BOW" -> return GearOuterClass.GearType.GEAR_TYPE_BOW
                 "WAND" -> return GearOuterClass.GearType.GEAR_TYPE_WAND
@@ -296,17 +433,15 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         "Loot" to "lootBonus"
     )
 
-    private fun extractIdentifications(text: Text): Components.Identification? {
+    private fun processIdenfitications(text: Text): Triple<StatType, Int?, Int?>? {
         val idMatch = ID_PATTERN.matcher(text.string).takeIf { it.find() }
             ?: return null
         val idDisplayName = idMatch.group(1)
         val idValue = idMatch.group(2) // e.g. "+10", "-1,000"
-        val idValue2 = idMatch.group(3) // Optional second value for range-based stats.
-        val unit = idMatch.group(4) ?: ""
+        val idValue2 = idMatch.group(4) // Optional second value for range-based stats.
+        val unit = idMatch.group(3) ?: ""
 
-        var idStats: StatType? = null
-
-        idStats = ID_MAPPING[idDisplayName]?.let { apiName ->
+        var idStats: StatType? = ID_MAPPING[idDisplayName]?.let { apiName ->
             Models.Stat.allStatTypes.firstOrNull { it.apiName == apiName }
         }
 
@@ -355,23 +490,34 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
             }
         }
 
-        val base = if (idValue2 == null || idValue2.isEmpty()) {
-            idValue.replace(",", "").replace("%", "").toIntOrNull() ?: 0
+        return Triple(
+            idStats,
+            idValue.replace(",", "").replace("%", "").toIntOrNull(),
+            idValue2?.replace(",", "")?.replace("%", "")?.toIntOrNull()
+        )
+    }
+
+    private fun extractIdentifications(text: Text): Components.Identification? {
+        val idStatsTriple = processIdenfitications(text) ?: return null
+        val idStats = idStatsTriple.first
+        val idValue = idStatsTriple.second ?: return null
+        val idValue2 = idStatsTriple.third
+
+        val base = if (idValue2 == null) {
+            idValue
         } else {
-            val id1 = idValue.replace(",", "").replace("%", "").toIntOrNull() ?: 0
-            val id2 = idValue2.replace(",", "").replace("%", "").toIntOrNull() ?: 0
             // For range-based stats, if it is positive, 0.3 - 1.3
             // If it is negative, 1.3 - 0.7
             // Base is always 1.0, and should be an integer
             // The current algorithm might not be perfect, the result may vary in 1-2.
-            if (id1 == id2) {
-                id1
-            } else if (id1 < 0 != idStats.calculateAsInverted()) {
+            if (idValue == idValue2) {
+                idValue
+            } else if (idValue < 0 != idStats.calculateAsInverted()) {
                 // 1.3 - 0.7
-                ((id1 + id2) / 2.0).roundToInt()
+                ((idValue + idValue2) / 2.0).roundToInt()
             } else {
                 // 0.3 - 1.3
-                ((id1 + id2) / 1.6).roundToInt()
+                ((idValue + idValue2) / 1.6).roundToInt()
             }
         }
 
@@ -553,11 +699,78 @@ object NativeItemTransformer : ItemTransformer<ItemStack>() {
         return text.siblings.firstNotNullOfOrNull { extractSet(it) }
     }
 
+    private fun isIngredient(text: Text): Boolean {
+        if (text.content != null && text.style.font == FONT_BANNER_BOX) {
+            return FontUtils.fromBannerFiltered((text.content as PlainTextContent).string()) == "INGREDIENT"
+        }
+        return text.siblings.any { isIngredient(it) }
+    }
+
+    private val INGRE_TIER_REGEX = Pattern.compile("^(\uE000+)\uDB00\uDC02$")
+    private val FONT_BANNER_SIMBOL = StyleSpriteSource.Font(Identifier.of("minecraft:banner/symbol"))
+    private fun extractIngreTier(text: Text): Enums.IngredientRarity? {
+        if (text.content != null && text.style.font == FONT_BANNER_SIMBOL && text.siblings.isNotEmpty()) {
+            val sib = text.siblings.first()
+            val content = (sib.content as PlainTextContent).string()
+            val match = INGRE_TIER_REGEX.matcher(content).takeIf { it.find() } ?: return null
+            val tierStr = match.group(1)
+            return when (tierStr.length) {
+                1 -> Enums.IngredientRarity.INGREDIENT_RARITY_1
+                2 -> Enums.IngredientRarity.INGREDIENT_RARITY_2
+                3 -> when (sib.style.color?.name) {
+                    "black" -> Enums.IngredientRarity.INGREDIENT_RARITY_0
+                    else -> Enums.IngredientRarity.INGREDIENT_RARITY_3
+                }
+
+                else -> null
+            }
+
+        }
+        return text.siblings.firstNotNullOfOrNull { extractIngreTier(it) }
+    }
+
+    val FONT_PROFESSION = StyleSpriteSource.Font(Identifier.of("minecraft:profession"))
+    private fun extractProfessions(text: Text): List<Enums.Profession> {
+        val professions = mutableListOf<Enums.Profession>()
+        if (text.content != null && text.style.font == FONT_PROFESSION) {
+            when ((text.content as PlainTextContent).string().filter {
+                it in '\uE004'..'\uE00B'
+            }) {
+                "\uE004" -> professions.add(Enums.Profession.PROFESSION_ALCHEMISM)
+                "\uE005" -> professions.add(Enums.Profession.PROFESSION_ARMOURING)
+                "\uE006" -> professions.add(Enums.Profession.PROFESSION_COOKING)
+                "\uE007" -> professions.add(Enums.Profession.PROFESSION_JEWELING)
+                "\uE008" -> professions.add(Enums.Profession.PROFESSION_SCRIBING)
+                "\uE009" -> professions.add(Enums.Profession.PROFESSION_TAILORING)
+                "\uE00A" -> professions.add(Enums.Profession.PROFESSION_WEAPONSMITHING)
+                "\uE00B" -> professions.add(Enums.Profession.PROFESSION_WOODWORKING)
+            }
+        }
+        text.siblings.forEach { professions.addAll(extractProfessions(it)) }
+        return professions
+    }
+
+    private fun extractCraftedEffect(text: Text): Components.CraftedEffect? {
+        // Crafted effects are similar to identifications, but use min-max range for the value.
+        val idStatsTriple = processIdenfitications(text) ?: return null
+        val idStats = idStatsTriple.first
+        val idValue = idStatsTriple.second ?: return null
+        val idValue2 = idStatsTriple.third
+
+        return craftedEffect {
+            id = IdentificationMappingRepo.fromApiName(idStats.apiName)?.id ?: return null
+            minVal = idValue
+            maxVal = idValue2 ?: idValue
+        }
+    }
+
     // ========================================================================
     // Shared Vanilla Helpers
     // ========================================================================
 
-    private fun getItemStackName(itemStack: ItemStack) =
+    private
+
+    fun getItemStackName(itemStack: ItemStack) =
         itemStack.customName?.string ?: itemStack.name?.string.orEmpty()
 
     private fun getItemStackLore(itemStack: ItemStack): List<Text> {
