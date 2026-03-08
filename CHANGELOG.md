@@ -1,6 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.2.7] - 2026-03-08
+
+### Bug Fixes
+- Incompatibility with wynntils custom screen by @FYWinds
+
+### Features
+- Add update checker by @FYWinds
+- Add beta ingredients collecting by @FYWinds
+
+### Miscellaneous Tasks
+- Update changelog [skip ci] by @github-actions[bot]
+
 ## [0.2.6] - 2026-03-04
 
 ### Bug Fixes
@@ -79,6 +91,7 @@ All notable changes to this project will be documented in this file.
 ### New Contributors
 * @FYWinds made their first contribution
 
+[0.2.7]: https://github.com/WynnSource/WynnSource/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/WynnSource/WynnSource/compare/v0.2.4...v0.2.6
 [0.2.4]: https://github.com/WynnSource/WynnSource/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/WynnSource/WynnSource/compare/v0.2.2...v0.2.3
